@@ -2,6 +2,21 @@
 
 ## Algorithm 1:
 
+#' Title Elliptical Slice Sampling
+#'
+#' @param x current state
+#' @param mu mean of Gaussian process
+#' @param sigma sd of Gaussian process
+#' @param log.L log-likelihood function
+#'
+#' @return new state x'
+#' @export
+#'
+#' @examples
+#'
+#'
+#'
+#'
 ESS <- function(x, mu, sigma, log.L){
 
   # choose ellipse
