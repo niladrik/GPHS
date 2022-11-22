@@ -20,7 +20,7 @@
 ESS <- function(x, mu, sigma, log.L){
 
   # choose ellipse
-  v <- rmnorm(1, mu, sigma)
+  v <- mvrnorm(1, mu, sigma)
   u <- runif(1, 0, 1)
 
   # set log-likelihood threshold
