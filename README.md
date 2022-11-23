@@ -23,9 +23,15 @@ You can install the most recent version of ‘GPHS’ package from
 
 ``` r
 # Plain installation
-devtools::install_github("niladrik/gphs") # gphs package
+devtools::install_github("niladrik/GPHS") # gphs package
 # For installation with vignette
-devtools::install_github("niladrik/gphs", build_vignettes = TRUE)
+devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
 ```
 
 ### Remainder of work
+
+In the remainder of the semester, I plan to complete the function for
+surrogate data model and that for graphical comparison of the
+algorithms. I will include compatibility checks for each functions and
+then test for the correctness. Also, I will have to write a vignette and
+include examples for the functions.
