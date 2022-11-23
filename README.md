@@ -11,10 +11,11 @@ hyperparameters in covariance function in Gaussian process models. It
 includes the Elliptical Slice Sampling algorithm as discussed in
 [Nishihara, Murray and Adams
 (2014)](https://www.cs.princeton.edu/~rpa/pubs/nishihara2014generalized.pdf)
-and the Surrogate data model Metropolis-Hastings algorithm as discussed
-in [Murray et. al (2010)](https://arxiv.org/abs/1001.0175). It also
-includes a function to provide the user with a comparison of the
-procedures using graphical tools.
+and Metropolis-Hastings algorithm and Slice sampling algorithm for the
+Surrogate data model as discussed in [Murray et. al
+(2010)](https://arxiv.org/abs/1001.0175). It also includes a function to
+provide the user with a comparison of the procedures using graphical
+tools.
 
 ### Installation
 
@@ -23,7 +24,7 @@ You can install the most recent version of ‘GPHS’ package from
 
 ``` r
 # Plain installation
-devtools::install_github("niladrik/GPHS") # gphs package
+devtools::install_github("niladrik/GPHS") # GPHS package
 # For installation with vignette
 devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
 ```
