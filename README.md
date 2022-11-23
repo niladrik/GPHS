@@ -6,11 +6,18 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-# GPHS: Hyperparameter selection in Gaussian Process models
+## GPHS: Hyperparameter selection in Gaussian Process models
 
-## Installation
+### Installation
 
-You can install the development version of GPHS from
-[GitHub](https://github.com/niladrik/GPHS) with:
+You can install the most recent version of ‘GPHS’ package from
+[GitHub](https://github.com/niladrik/GPHS) using the following commands:
 
-## Remainder of work
+``` r
+# Plain installation
+devtools::install_github("niladrik/gphs") # gphs package
+# For installation with vignette
+devtools::install_github("niladrik/gphs", build_vignettes = TRUE)
+```
+
+### Remainder of work
