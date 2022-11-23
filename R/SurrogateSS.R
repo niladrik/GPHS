@@ -13,5 +13,21 @@
 #'
 #' @examples
 SurrogateSS <- function(theta, f, sigma, Sig, S){
+  # draw surrogate data
+  g = mvrnorm(1, f, S)
 
+  # calculating R
+  R = solve(solve(Sig) + solve(S))
+
+  # calculating m
+  m = R %*% solve(S) %*% g
+
+  # Cholesky decomposition of R
+  L = chol(R)
+
+  # inverse of L
+  Linv = solve(L)
+
+  # compute the latent variable
+  eta = Linv %*% (f - m)
 }
