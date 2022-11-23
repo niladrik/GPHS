@@ -1,9 +1,10 @@
 Package: GPHS
-Title: What the Package Does (One Line, Title Case)
+Title: Hyperparameter selection in Gaussian process models
 Version: 0.0.0.9000
 Authors@R: 
     person("Niladri", "Kal", , "niladrik@tamu.edu", role = c("aut", "cre"))
-Description: What the package does (one paragraph).
+Description: 
+    This package provides MCMC techniques to update the covariance hyperparameters in a Gaussian process model, and compare their performances.
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
