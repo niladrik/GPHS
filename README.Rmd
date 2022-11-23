@@ -13,13 +13,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-# GPHS
+<!-- # GPHS -->
 
 <!-- badges: start -->
 <!-- badges: end -->
 
 ## GPHS: Hyperparameter selection in Gaussian Process models
 
+The R package 'GPHS' provides functions for MCMC update of the hyperparameters in covariance function in Gaussian process models. It includes the Elliptical Slice Sampling algorithm as discussed in [Nishihara, Murray and Adams (2014)](https://www.cs.princeton.edu/~rpa/pubs/nishihara2014generalized.pdf) and the Surrogate data model Metropolis-Hastings algorithm as discussed in [Murray et. al (2010)](https://arxiv.org/abs/1001.0175). It also includes a function to provide the user with a comparison of the procedures using graphical tools.
 
 ### Installation
 
