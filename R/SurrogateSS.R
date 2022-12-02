@@ -7,12 +7,14 @@
 #' @param sigma scale parameter
 #' @param Sig covariance matrix of distribution of f
 #' @param S covariance matrix of the noisy version of the true latent variable
+#' @param l conditional likelihood function
+#' @param p distribution of the covariance hyperparameter
 #'
 #' @return updated theta and f
 #' @export
 #'
 #' @examples
-SurrogateSS <- function(theta, f, sigma, Sig, S){
+SurrogateSS <- function(theta, f, sigma, Sig, S, l, p){
   # draw surrogate data
   g = mvrnorm(1, f, S)
 
@@ -30,4 +32,41 @@ SurrogateSS <- function(theta, f, sigma, Sig, S){
 
   # compute the latent variable
   eta = Linv %*% (f - m)
+
+  # create a bracket
+  v = runif(0, sigma)
+
+  theta.min = theta - v
+  theta.max = theta + sigma
+
+  u = runif(0, 1)
+
+  # determining threshold
+  y = u * l(f) * dmvnorm(g, 0, Sig + S) * p(theta)
+
+  #
+
 }
+
+
+#' Calculate the inverse and log(determinant) of symmetric matrix
+#'
+#' @param Sigma is a symmetric matrix whose inverse and determinant are to be calculated
+#'
+#' @return A list containing the inverse and the log(determinant)
+#'
+#' @examples
+#' inv_and_logdet(matrix(c(2,0,0,4), nrow = 2, ncol = 2))
+#'
+inv_and_logdet = function(Sigma)
+{
+  A = chol(Sigma) ## Cholesky decomposition
+  d = 2 * sum(log(diag(A))) ## determinant
+  result = list()
+  result[[1]] = chol2inv(A) ## inverse from Cholesky decomposition (X'X)^{-1}
+  result[[2]] = d
+  return(result)
+}
+
+
+
