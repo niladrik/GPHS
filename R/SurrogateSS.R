@@ -43,8 +43,24 @@ SurrogateSS <- function(theta, f, sigma, Sig, S, l, p){
 
   # determining threshold
   y = u * l(f) * dmvnorm(g, 0, Sig + S) * p(theta)
+  repeat{
+    # drawing the proposal
+    theta.p = runif(1, theta.min, theta.max)
 
-  #
+    # compute function
+    f.p = L * eta + m
+
+    if(l(f.p) * dmvnorm(g, 0, Sig + S) * p(theta.p) > y){
+      return(list(f = f.p, theta = theta.p))
+    } else if(theta.p < theta){
+      # shrinking the bracket minimum
+      theta.min = theta.p
+    }else{
+      # shrinking the bracket maximum
+      theta.max = theta.p
+    }
+  }
+
 
 }
 
@@ -68,5 +84,9 @@ inv_and_logdet = function(Sigma)
   return(result)
 }
 
-
+dmvnorm <- function(x, mu, sigma){
+  # inverse and det of sigma
+  result = inv_and_logdet(sigma)
+  return(exp(-tcrossprod(y - mu, result[[1]] * (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
+}
 
