@@ -12,3 +12,7 @@ RoxygenNote: 7.2.1
 Imports: 
     MASS,
     stats
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

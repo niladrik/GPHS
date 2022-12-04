@@ -1,0 +1,19 @@
+---
+title: "An introduction to \texttt{GPHS}"
+output: pdf_document
+vignette: >
+  %\VignetteIndexEntry{An introduction to GPHS}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(GPHS)
+```
