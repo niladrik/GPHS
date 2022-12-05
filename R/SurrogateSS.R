@@ -5,16 +5,22 @@
 #' @param theta hyperparameter of interest
 #' @param f latent variable
 #' @param sigma scale parameter
-#' @param Sig covariance matrix of distribution of f
-#' @param S covariance matrix of the noisy version of the true latent variable
 #' @param l conditional likelihood function
 #' @param p distribution of the covariance hyperparameter
+#' @param data the data in hand
 #'
 #' @return updated theta and f
 #' @export
 #'
 #' @examples
-SurrogateSS <- function(theta, f, sigma, Sig, S, l, p){
+SurrogateSS <- function(theta, f, sigma, data, l, p){
+  # fixing S by hand to a constant
+  alpha = 0.1
+  S = alpha * diag(1, nrow = length(f))
+
+  # calculating sigma
+  sigma = Sigma_mat(data, theta)
+
   # draw surrogate data
   g = mvrnorm(1, f, S)
 
@@ -47,12 +53,15 @@ SurrogateSS <- function(theta, f, sigma, Sig, S, l, p){
     # drawing the proposal
     theta.p = runif(1, theta.min, theta.max)
 
+    # updating Sigma
+    Sig.p = Sigma_mat(data, theta.p)
+
     # compute function
     f.p = L * eta + m
 
-    if(l(f.p) * dmvnorm(g, 0, Sig + S) * p(theta.p) > y){
+    if(l(f.p) * dmvnorm(g, 0, Sig.p + S) * p(theta.p) > y){
       return(list(f = f.p, theta = theta.p))
-    } else if(theta.p < theta){
+    }else if(theta.p < theta){
       # shrinking the bracket minimum
       theta.min = theta.p
     }else{
@@ -69,11 +78,14 @@ SurrogateSS <- function(theta, f, sigma, Sig, S, l, p){
 #'
 #' @param Sigma is a symmetric matrix whose inverse and determinant are to be calculated
 #'
-#' @return A list containing the inverse and the log(determinant)
+#' @return A list containing the inverse and the log(determinant) of the matrix
+#'
+#' @export
 #'
 #' @examples
-#' inv_and_logdet(matrix(c(2,0,0,4), nrow = 2, ncol = 2))
-#'
+#' mat <- diag(c(2, 4))
+#' inv_and_logdet(mat)
+
 inv_and_logdet = function(Sigma)
 {
   A = chol(Sigma) ## Cholesky decomposition
@@ -82,11 +94,5 @@ inv_and_logdet = function(Sigma)
   result[[1]] = chol2inv(A) ## inverse from Cholesky decomposition (X'X)^{-1}
   result[[2]] = d
   return(result)
-}
-
-dmvnorm <- function(x, mu, sigma){
-  # inverse and det of sigma
-  result = inv_and_logdet(sigma)
-  return(exp(-tcrossprod(y - mu, result[[1]] * (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
 }
 
