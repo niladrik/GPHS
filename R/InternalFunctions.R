@@ -15,3 +15,18 @@ dmvnorm <- function(y, mu, sigma){
 }
 
 
+#### Inverse gamma prior  ####
+
+# the prior function
+p <- function(theta){
+  # length scale hyperparameter having discrete uniform prior over 20 points
+  l = theta[[1]]
+
+  # variance of the signal function having inverse gamma(1, 1) prior
+  tau = theta[[2]]
+  # IG(alpha, beta)
+  alpha = 1
+  beta = 1
+  return( beta^alpha * tau^(-alpha - 1) * exp(-beta/ tau) / (gamma(alpha) * 20))
+}
+
