@@ -14,6 +14,32 @@ dmvnorm <- function(y, mu, sigma){
   return(exp(-tcrossprod(y - mu, result[[1]] * (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
 }
 
+# covariance matrix
+
+Sigma <- function(data, l){
+  # number of columns
+  n.data = ncol(data)
+
+  # extracting x and y
+  y = matrix(data[, 1], ncol = 1)
+  x = matrix(data[, 2:n.data], ncol = n.data - 1)
+
+  n = nrow(x)
+
+  p_s = ncol(x) ## dimension of the space
+
+  D = list()
+
+  for (i in 1:p_s)
+  {
+    D[[i]] = as.matrix(dist(x[, i], diag = TRUE, upper = TRUE))
+  }
+
+  new_cov = matrix(1, n, n)
+  for (i in 1:p_s)  new_cov = new_cov * matern(d = D[[i]], phi1, nu)
+
+  return(new_cov)
+}
 
 #### Inverse gamma prior  ####
 
