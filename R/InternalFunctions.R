@@ -41,6 +41,18 @@ Sigma <- function(data, l){
   return(new_cov)
 }
 
+
+# function to generate data
+
+f <- function(x){
+  func <- 0
+  for(j in 1:5000){
+    func <- func + j^(-1.7) * sin(j) * cos(pi * (j - 0.5) * x)
+  }
+  return(func)
+}
+
+
 #### Inverse gamma prior  ####
 
 # the prior function
