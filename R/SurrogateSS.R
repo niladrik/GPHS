@@ -6,7 +6,7 @@
 #' @param f latent variable
 #' @param sigma scale parameter
 #' @param l conditional likelihood function
-#' @param p distribution of the covariance hyperparameter
+#' @param p prior distribution of the covariance hyperparameter
 #' @param data the data in hand
 #'
 #' @return updated theta and f
@@ -48,7 +48,7 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
   u = runif(0, 1)
 
   # determining threshold
-  y = u * l(f) * dmvnorm(g, 0, Sig + S) * p(theta)
+  y = u * l(f) * dmvnorm(g, 0, Sig + S) * p(theta) #, l.min, l.max)
   repeat{
     # drawing the proposal
     theta.p = runif(1, theta.min, theta.max)
@@ -86,8 +86,7 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
 #' mat <- diag(c(2, 4))
 #' inv_and_logdet(mat)
 
-inv_and_logdet = function(Sigma)
-{
+inv_and_logdet = function(Sigma){
   A = chol(Sigma) ## Cholesky decomposition
   d = 2 * sum(log(diag(A))) ## determinant
   result = list()
