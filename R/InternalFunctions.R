@@ -44,7 +44,7 @@ Sigma <- function(data, l){
 #### Inverse gamma prior  ####
 
 # the prior function
-p <- function(theta){
+p_ig <- function(theta){
   # length scale hyperparameter having discrete uniform prior over 20 points
   l = theta[[1]]
 
@@ -56,3 +56,7 @@ p <- function(theta){
   return( beta^alpha * tau^(-alpha - 1) * exp(-beta/ tau) / (gamma(alpha) * 20))
 }
 
+#### Uniform prior ####
+p_uni <- function(theta, l.min, l.max){
+  return(1/(l.min - l.max))
+}
