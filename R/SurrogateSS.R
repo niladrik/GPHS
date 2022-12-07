@@ -19,13 +19,19 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
   S = alpha * diag(1, nrow = length(f))
 
   # calculating sigma
-  sigma = Sigma_mat(data, theta)
+  Sig = Sigma(data, theta)
 
   # draw surrogate data
   g = mvrnorm(1, f, S)
 
   # calculating R
-  R = solve(solve(Sig) + solve(S))
+  # invert sigma matrix
+  Sig_inv = solve(Sig)
+
+  # invert S matrix
+  S_inv = solve(S)
+
+  R = solve(Sig_inv + S_inv)
 
   # calculating m
   m = R %*% solve(S) %*% g
@@ -54,10 +60,10 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
     theta.p = runif(1, theta.min, theta.max)
 
     # updating Sigma
-    Sig.p = Sigma_mat(data, theta.p)
+    Sig.p = Sigma(data, theta.p)
 
     # compute function
-    f.p = L * eta + m
+    f.p = L %*% eta + m
 
     if(l(f.p) * dmvnorm(g, 0, Sig.p + S) * p(theta.p) > y){
       return(list(f = f.p, theta = theta.p))
