@@ -30,9 +30,9 @@ SurrogateMH <- function(theta, f, data, p){
   Sig_inv = solve(Sig)
 
   # invert S matrix
-  S_inv = solve(S)
+  S_inv = diag(1/alpha, nrow = length(f))
 
-  R = solve(solve(Sig) + solve(S))
+  R = solve(S_inv + Sig_inv)
 
   # calculating m
   m = R %*% solve(S) %*% g
@@ -58,11 +58,11 @@ SurrogateMH <- function(theta, f, data, p){
   # }
 
   # compute the function
-  f.p = L %*% eta + m
+  f.p = as.vector(L %*% eta + m)
   u = runif(1)
 
   # calculating new Sigma
-  Sig.p = Sigma(data, theta)
+  Sig.p = Sigma(data, theta.p)
 
   # calculate the ratio
   lik.new = l(f.p) * dmvnorm(g, rep(0, length(g)), Sig.p + S) * p(theta.p) * dnorm(log(theta.p), log(theta), 1) / theta.p
