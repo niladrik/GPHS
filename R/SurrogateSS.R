@@ -63,7 +63,7 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
     Sig.p = Sigma(data, theta.p)
 
     # compute function
-    f.p = L %*% eta + m
+    f.p = as.vector(L %*% eta + m)
 
     if(l(f.p) * dmvnorm(g, 0, Sig.p + S) * p(theta.p) > y){
       return(list(f = f.p, theta = theta.p))
