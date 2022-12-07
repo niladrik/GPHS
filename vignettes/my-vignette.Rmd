@@ -1,5 +1,5 @@
 ---
-title: "An introduction to \texttt{GPHS}"
+title: "An introduction to GPHS"
 output: pdf_document
 vignette: >
   %\VignetteIndexEntry{An introduction to GPHS}
@@ -13,7 +13,15 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-
+\texttt{GPHS} is an R package that provides various methods to perform hyperparameter selection in Gaussian processes.
 ```{r setup}
 library(GPHS)
 ```
+### Elliptical Slice Sampling (ESS)
+Elliptical Slice Sampling, first discussed by Murray and Adams in 2010, is a MCMC technique that prvoides a way to sample along an ellipse with an adaptive step-size. It is designed to sample from posterior of the form $\pi(x)\propto L(x)N(x;\mu,\Sigma)$, where $L(\cdot)$ denotes the likelihood function and $N(\mu,\Sigma)$ denotes a multivariate Gaussian prior. The major advantage of this method is that it has no free tuning parameters. It relies on the fact that Gaussian prior mixes rapidly even when there is strong dependency induced by the covariance structure.\
+ESS uses the invariance property that when $x$ and $\nu$ are drawn independently from $N(\mu,\Sigma)$ distribution then the linear combination: 
+$$x'=(x-\mu)\cos(\theta) + (\nu-\mu)\sin(\theta)$$ 
+is marginally distributed as $N(\mu,\Sigma)$ for any $\theta\in[0,2\pi]$, although $x'$ is still correlated with $x$ and $\nu$.
+
+### Surrogate Data model:
+
