@@ -36,7 +36,7 @@ Sigma <- function(data, l){
   }
 
   new_cov = matrix(1, n, n)
-  for (i in 1:p_s)  new_cov = new_cov * matern(d = D[[i]], phi1, nu)
+  for (i in 1:p_s)  new_cov = new_cov * matern(d = D[[i]], 1/l)
 
   return(new_cov)
 }
@@ -44,7 +44,7 @@ Sigma <- function(data, l){
 
 # function to generate data
 
-f <- function(x){
+f_data <- function(x){
   func <- 0
   for(j in 1:5000){
     func <- func + j^(-1.7) * sin(j) * cos(pi * (j - 0.5) * x)
