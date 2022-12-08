@@ -24,4 +24,40 @@ $$x'=(x-\mu)\cos(\theta) + (\nu-\mu)\sin(\theta)$$
 is marginally distributed as $N(\mu,\Sigma)$ for any $\theta\in[0,2\pi]$, although $x'$ is still correlated with $x$ and $\nu$.
 
 ### Surrogate Data model:
+As discussed in Murray and Adams(2010), we consider the following generic form of the model:
+$$\begin{aligned}
+\text{covariance hyperparameters } & \theta\propto p_h\\
+\text{latent variable } & f\propto N(0,\Sigma_{\theta})\\
+\text{conditional likelihood }& P(data|f)=L(f)
+\end{aligned}
+$$
+We assume that the covariance matrix $\Sigma_\theta$ is arbitrary positive definite matrix. For non-Gaussian likelihoods, we sample from the joint posterior:
+$$P(f,\theta)\propto L(f)N(f;0,\Sigma_\theta)p_h(\theta)$$
+To guide joint proporsals of the hyperparameters and the latent variables, we create an auxiliary variable that introduces a surrogate gaussian observation. The Gaussian model is augmented with a noisy version of the true latent variable, $g$:
+$$P(g|f,\theta)=N(g;f,S_\theta)$$
+Here, $S_\theta$ can be set by hand to a fixed value or a value depending on the current hyperparameters. We first draw the auxiliary variable from the marginal distribution:
+$$P(g|\theta)=N(g;0,\Sigma_\theta+S_\theta)$$
+and then sample the latent values conditioned on the auxiliary variables:
+$$P(f|g,\theta)=N(f;m_{\theta,g},R_\theta),\text{ where } R_{\theta}=\left(\Sigma_\theta^{-1}+S_\theta^{-1}\right)^{-1}\text{ and }m_{\theta,g}=R_\theta S_\theta^{-1}g$$
+The sampling process can be described like a draw from a spheical Gaussian as follows:
+$$\eta\sim N(0,I),\; f=L_{R_\theta}\eta+m_{\theta,g},\text{ where }L_{R_\theta}L_{R_\theta}^T=R_\theta$$
+We update the hyperparameters $\theta$  conditioned on the 
+"whitened" variables $\eta$ and the surrogate data $g$.
+$$P(\theta|\eta,g,data)\propto P(\theta,\eta,g,data)\propto L(f(\theta,\eta,g))N(g;0,\Sigma_\theta+S_\theta)p_h(\theta)$$.
+
+The acceptance rule in the Metropolis-Hastings algorithm contains a ratio of the above. We implement this algorithm in the function `SurrogateMH`.\
+
+Suppose for simplicity we assume that the prior distribution of the 
+```{r}
+# we assume the data already generated
+```
+
+
+
+
+However, the major problem with he Metropolis-Hastings algorithm is that the proposal distribution needs to be set and tuned properly. The efficiency of the algorithms depend on the scale $\sigma$ of the proposal distribution. Slice sampling, a family of adaptive procedures, is much more robust to the choice of scale parameter. We implement a possible type of slice sampling in the function `SurrogateSS`.
+
+
+
+
 
