@@ -4,7 +4,7 @@
 \alias{ESS}
 \title{Title Elliptical Slice Sampling}
 \usage{
-ESS(x, mu, sigma, log.L)
+ESS(x, mu, sigma, log.L, niter)
 }
 \arguments{
 \item{x}{current state}
@@ -14,10 +14,23 @@ ESS(x, mu, sigma, log.L)
 \item{sigma}{sd of Gaussian process}
 
 \item{log.L}{log-likelihood function}
+
+\item{niter}{maximum number of iterations in one update}
 }
 \value{
-new state x'
+It will return the new state x'
 }
 \description{
 Title Elliptical Slice Sampling
+}
+\examples{
+set.seed(12345)
+x <- seq(1, 1e-3, -0.1)
+ff <- f_data(x)
+y <- ff + rnorm(length(x), 0, sd(ff)/10)
+training_data = cbind(y, x)
+
+
+
+
 }
