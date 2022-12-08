@@ -13,7 +13,9 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
-\texttt{GPHS} is an R package that provides various methods to perform hyperparameter selection in Gaussian processes.
+Hyperparameter selection in bayesian inference is very crucial as it specifies the covariance structure. Typically, we integrate over these hyperparameters but they often correspond to high-dimensional integrals which becomes analytically intractable. This integration is often performed by  MCMC, but MCMC converges very slowly and it needs expert tuning. Hence, we need special techniques to handle these situations. \
+`GPHS` is an R package that provides various methods to perform hyperparameter selection in Gaussian processes. It has three algorithms to perform the update of hyperparameters. We have Metropolis-Hastings algorithm and the Slice sampling algorithm for a Surrogate data model as discussed in Murray and Adams (2010)\footnote{Murray and Adams (2010)}. We also have another function that implements the Elliptical Slice Sampling as given in Murray et al (2010) and Nishihara, Murray and Adams (2014). In addition to these algorithms, `GPHS` also has a function to invert symmetric matrices based on Cholesky decomposition, which is faster than the default `solve()` function in R.\
+
 ```{r setup}
 library(GPHS)
 ```
