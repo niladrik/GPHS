@@ -8,14 +8,19 @@
 #' @param l conditional likelihood function
 #' @param p prior distribution of the covariance hyperparameter
 #' @param data the data in hand
+#' @param niter maximum number of iterations in an update
 #'
 #' @return updated theta and f
 #' @export
 #'
 #' @examples
-SurrogateSS <- function(theta, f, sigma, data, l, p){
+SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
+  # checking if l is NULL then assigning the multivariate normal density to it
+  if(is.null(l)){
+    l = dmvnorm_own
+  }
   # fixing S by hand to a constant
-  alpha = 0.1
+  alpha = 0.5
   S = alpha * diag(1, nrow = length(f))
 
   # calculating sigma
@@ -26,46 +31,65 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
 
   # calculating R
   # invert sigma matrix
-  Sig_inv = solve(Sig)
+  Sig_inv = mySolve(Sig)$inv
 
   # invert S matrix
-  S_inv = solve(S)
+  S_inv = mySolve(S)$inv
 
-  R = solve(Sig_inv + S_inv)
+  R_return = mySolve(Sig_inv + S_inv)
+
+  R = R_return$inv
 
   # calculating m
-  m = R %*% solve(S) %*% g
+  m = R %*% mySolve(S)$inv %*% g
 
   # Cholesky decomposition of R
-  L = chol(R)
+  L = R_return$cholDeco
 
   # inverse of L
-  Linv = solve(L)
+  Linv = mySolve(L)$inv
 
   # compute the latent variable
   eta = Linv %*% (f - m)
 
   # create a bracket
-  v = runif(0, sigma)
+  v = runif(1, 0, sigma)
 
   theta.min = theta - v
   theta.max = theta + sigma
 
-  u = runif(0, 1)
+  u = runif(1, 0, 1)
 
   # determining threshold
-  y = u * l(f) * dmvnorm(g, 0, Sig + S) * p(theta) #, l.min, l.max)
+  y = u * l(f) * dmvnorm_own(g, rep(0, length(g)), Sig + S, 1) * p(theta) #, l.min, l.max)
+
+  # count the number of iterations
+  count = 0
+
   repeat{
+    # counting the number of iterations
+    count = count + 1
+
     # drawing the proposal
     theta.p = runif(1, theta.min, theta.max)
 
-    # updating Sigma
-    Sig.p = Sigma(data, theta.p)
+    # compute the new Sigma matrix
+    Sigma.p = Sigma(data, theta.p)
 
-    # compute function
-    f.p = as.vector(L %*% eta + m)
+    # new R
+    Rp_res = mySolve(mySolve(Sigma.p)$inv + S_inv)
 
-    if(l(f.p) * dmvnorm(g, 0, Sig.p + S) * p(theta.p) > y){
+    R.p = Rp_res$inv
+    # calculating new m
+    m.p = R.p %*% S_inv %*% g
+
+    # compute new L matrix
+    L.p = Rp_res$cholDeco
+
+    # compute the function
+    f.p = as.vector(L.p %*% eta + m.p)
+
+    if(l(f.p) * dmvnorm_own(g, rep(0, length(g)), Sigma.p + S, 1) * p(theta.p) > y){
       return(list(f = f.p, theta = theta.p))
     }else if(theta.p < theta){
       # shrinking the bracket minimum
@@ -73,6 +97,12 @@ SurrogateSS <- function(theta, f, sigma, data, l, p){
     }else{
       # shrinking the bracket maximum
       theta.max = theta.p
+    }
+
+    # checking the number of iterations till now
+    if(count >= niter){
+      #print("Exceeded the maximum number of iterations!")
+      return(list(f = f.p, theta = theta.p))
     }
   }
 
