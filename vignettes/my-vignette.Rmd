@@ -16,11 +16,8 @@ knitr::opts_chunk$set(
 Hyperparameter selection in bayesian inference is very crucial as it specifies the covariance structure. Typically, we integrate over these hyperparameters but they often correspond to high-dimensional integrals which becomes analytically intractable. This integration is often performed by  MCMC, but MCMC converges very slowly and it needs expert tuning. Hence, we need special techniques to handle these situations. \
 `GPHS` is an R package that provides various methods to perform hyperparameter selection in Gaussian processes. It has three algorithms to perform the update of hyperparameters. We have Metropolis-Hastings algorithm and the Slice sampling algorithm for a Surrogate data model as discussed in Murray and Adams (2010)\footnote{Murray and Adams (2010)}. We also have another function that implements the Elliptical Slice Sampling as given in Murray et al (2010) and Nishihara, Murray and Adams (2014). In addition to these algorithms, `GPHS` also has a function to invert symmetric matrices based on Cholesky decomposition, which is faster than the default `solve()` function in R.\
 
-```{r setup}
-library(GPHS)
-```
 ### Elliptical Slice Sampling (ESS)
-Elliptical Slice Sampling, first discussed by Murray and Adams in 2010, is a MCMC technique that prvoides a way to sample along an ellipse with an adaptive step-size. It is designed to sample from posterior of the form $\pi(x)\propto L(x)N(x;\mu,\Sigma)$, where $L(\cdot)$ denotes the likelihood function and $N(\mu,\Sigma)$ denotes a multivariate Gaussian prior. The major advantage of this method is that it has no free tuning parameters. It relies on the fact that Gaussian prior mixes rapidly even when there is strong dependency induced by the covariance structure.\
+Elliptical Slice Sampling, first discussed by Murray and Adams in 2010, is a MCMC technique that provides a way to sample along an ellipse with an adaptive step-size. It is designed to sample from posterior of the form $\pi(x)\propto L(x)N(x;\mu,\Sigma)$, where $L(\cdot)$ denotes the likelihood function and $N(\mu,\Sigma)$ denotes a multivariate Gaussian prior. The major advantage of this method is that it has no free tuning parameters. It relies on the fact that Gaussian prior mixes rapidly even when there is strong dependency induced by the covariance structure.\
 ESS uses the invariance property that when $x$ and $\nu$ are drawn independently from $N(\mu,\Sigma)$ distribution then the linear combination: 
 $$x'=(x-\mu)\cos(\theta) + (\nu-\mu)\sin(\theta)$$ 
 is marginally distributed as $N(\mu,\Sigma)$ for any $\theta\in[0,2\pi]$, although $x'$ is still correlated with $x$ and $\nu$.
@@ -57,8 +54,24 @@ Suppose for simplicity we assume that the prior distribution of the
 
 
 
-However, the major problem with he Metropolis-Hastings algorithm is that the proposal distribution needs to be set and tuned properly. The efficiency of the algorithms depend on the scale $\sigma$ of the proposal distribution. Slice sampling, a family of adaptive procedures, is much more robust to the choice of scale parameter. We implement a possible type of slice sampling in the function `SurrogateSS`.
+However, the major problem with the Metropolis-Hastings algorithm is that the proposal distribution needs to be set and tuned properly. The efficiency of the algorithms depend on the scale $\sigma$ of the proposal distribution. Slice sampling, a family of adaptive procedures, is much more robust to the choice of scale parameter. We implement a possible type of slice sampling in the function `SurrogateSS`.
+## Installation
 
+You can install the most recent version of 'GPHS' package from [GitHub](https://github.com/niladrik/GPHS) using the following commands:
+```{r, eval = FALSE}
+# Plain installation
+devtools::install_github("niladrik/GPHS")
+
+# For installation with vignette
+devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
+```
+
+## Quick Start
+
+
+```{r setup}
+library(GPHS)
+```
 
 
 
