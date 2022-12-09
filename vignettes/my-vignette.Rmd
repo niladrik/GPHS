@@ -69,8 +69,8 @@ Firstly, we load the package.
 ```{r setup}
 library(GPHS)
 ```
-Next we create a dataset that we are going to use to depict the functionality of our functions:
-```{r, warning=FALSE}
+We consider the model: $y=f+\epsilon$ where y is the observed value, $f$ is the latent variable, and $\epsilon$ is a noise term. We now create a dataset that we are going to use to depict the functionality of our functions:
+```{r, warning=FALSE, message=FALSE}
 # loading ggplot for plots
 library(ggplot2)
 # setting the seed for reproducibility of the data
@@ -97,13 +97,76 @@ Thus, the function and the data points we generated look like:
   ggplot(data = as.data.frame(cbind(x, y, ff)), aes(x = x, y = y)) + geom_point() + geom_line(aes(x = x, y = ff, color = "red")) + theme_bw() + theme(legend.position = "none")
 ```
 
-For the purpose of illustration, we consider a sample of 100 data points from this set as our data in hand.
+For the purpose of illustration, we consider a sample of 10 data points from this set as our data in hand.
 ```{r}
 # selecting a sample of 100 data points
-x.train = sample(x = x, size = 100, replace = FALSE)
-y.train = sample(x = y, size = 100, replace = FALSE)
+x.train = sample(x = x, size = 10, replace = FALSE)
+y.train = sample(x = y, size = 10, replace = FALSE)
 
 # dataset in hand
 training_data = cbind(x.train, y.train)
+```
+We consider the matern covariance function for the covariance of the latent variable, and the length scale $l$ is our hyperparameter of interest. We consider the prior of $l$ to be a log-normal distribution, i.e, $log(l)\sim N(0, 1)$.
+```{r}
+# prior function
+prior <- function(x, mu = 0, sigma = 1){
+  return(dnorm(log(x), mu, sigma))
+}
+```
+We also wish to pre-compute a range of $l$ such that the matern correlatio lies between $0.05$ and $0.95$.
+```{r}
+## matern covariance function
+
+matern = function(d , phi, nu = 3){ # previous value of nu = 3
+  ifelse(d > 0, (sqrt(2 * nu) * d * phi)^nu / (2^(nu - 1) * gamma(nu)) *
+           besselK(x = d * phi * sqrt(2 * nu), nu = nu), 1.0)
+}
+
+## check for 0.05 <= k_mat(1/l) / k(0) <= 0.95
+## Here we fix the maximum distance to be 1 since x varies from (0.01, 1)
+## and calculate these values
+l_range = seq(0.2, 6.36, 0.01)
+k_range = sapply(l_range, function(l){return(matern(1, 1/l, 3) / matern(0, 1/l, 3))})
+
+l_min = min(l_range[k_range > 0.05])
+l_max = max(l_range[k_range < 0.95])
+c(l_min, l_max)
+```
+
+### ```SurrogateMH``` 
+This function provides provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm.
+```{r}
+# randomly selecting a start point between l_min and l_max
+theta.0 = runif(1, l_min, l_max)
+# choosing the starting point of f to be y/2
+f.0 = training_data[, 2]/2
+
+# We choose the conditional distribution of the data|f as N(f, tau*I)
+l <- function(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), tau = 0.1){
+  return(mvtnorm::dmvnorm(x, mu, tau * sigma))
+}
+SurrogateMH(theta = theta.0, f = f.0, data = training_data, p = prior, l)
+```
+The major problem with this algorithm is that it needs expert tuning. Hence, we go for the Slice sampling of the hyperparameters and the latent variable.
+
+### ```SurrogateSS```
+This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). 
+```{r}
+# set.seed(12345)
+f = vector("list", length = 1 + 1)
+th = vector("numeric", 1 + 1)
+
+## choosing the starting points
+f[[1]] = training_data[, 1]/2
+th[1] = runif(1, l_min, l_max)
+
+## choosing the scale parameter
+sigma = 0.2
+i = 1
+SurrogateSS(theta = th[i], f = f[[i]], sigma = sigma, data = training_data, p = prior, niter = 100)
+#   f[[i + 1]] = result$f
+#   th[i + 1] = result$theta
+# f[[2]]
+# th[2]
 ```
 
