@@ -70,8 +70,8 @@ SurrogateMH <- function(theta, f, data, p, l){
   u = runif(1)
 
   # calculate the ratio
-  lik.new = l(f.p) * dmvnorm(g, rep(0, length(g)), Sigma.p + S) * p(theta.p) * dnorm(log(theta.p), log(theta), 1) / theta.p
-  lik.old = l(f) * dmvnorm(g, rep(0, length(g)), Sig + S) * p(theta) * dnorm(log(theta), log(theta.p), 1) / theta
+  lik.new = l(f.p) * mvtnorm::dmvnorm(g, rep(0, length(g)), Sigma.p + S) * p(theta.p) * dnorm(log(theta.p), log(theta), 1) / theta.p
+  lik.old = l(f) * mvtnorm::dmvnorm(g, rep(0, length(g)), Sig + S) * p(theta) * dnorm(log(theta), log(theta.p), 1) / theta
   if(lik.new / lik.old > u){
     return(list(f = f.p, theta = theta.p))
   }else{
