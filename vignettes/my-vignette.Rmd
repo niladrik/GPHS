@@ -1,18 +1,22 @@
 ---
 title: "An introduction to GPHS"
 output: pdf_document
+header-includes:
+  \usepackage{fvextra}
+  \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
 vignette: >
   %\VignetteIndexEntry{An introduction to GPHS}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
-
+\tableofcontents
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
 ```
+## Introduction
 Hyperparameter selection in bayesian inference is very crucial as it specifies the covariance structure. Typically, we integrate over these hyperparameters but they often correspond to high-dimensional integrals which becomes analytically intractable. This integration is often performed by  MCMC, but MCMC converges very slowly and it needs expert tuning. Hence, we need special techniques to handle these situations. \
 `GPHS` is an R package that provides various methods to perform hyperparameter selection in Gaussian processes. It has three algorithms to perform the update of hyperparameters. We have Metropolis-Hastings algorithm and the Slice sampling algorithm for a Surrogate data model as discussed in Murray and Adams (2010)\footnote{Murray and Adams (2010)}. We also have another function that implements the Elliptical Slice Sampling as given in Murray et al (2010) and Nishihara, Murray and Adams (2014). In addition to these algorithms, `GPHS` also has a function to invert symmetric matrices based on Cholesky decomposition, which is faster than the default `solve()` function in R.\
 
@@ -46,15 +50,8 @@ $$P(\theta|\eta,g,data)\propto P(\theta,\eta,g,data)\propto L(f(\theta,\eta,g))N
 
 The acceptance rule in the Metropolis-Hastings algorithm contains a ratio of the above. We implement this algorithm in the function `SurrogateMH`.\
 
-Suppose for simplicity we assume that the prior distribution of the 
-```{r}
-# we assume the data already generated
-```
-
-
-
-
 However, the major problem with the Metropolis-Hastings algorithm is that the proposal distribution needs to be set and tuned properly. The efficiency of the algorithms depend on the scale $\sigma$ of the proposal distribution. Slice sampling, a family of adaptive procedures, is much more robust to the choice of scale parameter. We implement a possible type of slice sampling in the function `SurrogateSS`.
+
 ## Installation
 
 You can install the most recent version of 'GPHS' package from [GitHub](https://github.com/niladrik/GPHS) using the following commands:
@@ -67,12 +64,46 @@ devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
 ```
 
 ## Quick Start
-
-
+This section will convey a general idea of the package. We would briefly mention the functions that are there in the package, their inputs and their outputs.\
+Firstly, we load the package.
 ```{r setup}
 library(GPHS)
 ```
+Next we create a dataset that we are going to use to depict the functionality of our functions:
+```{r, warning=FALSE}
+# loading ggplot for plots
+library(ggplot2)
+# setting the seed for reproducibility of the data
+set.seed(12345)
 
+f_data <- function(x){
+  func <- 0
+  for(j in 1:5000){
+    func <- func + j^(-1.7) * sin(j) * cos(pi * (j - 0.5) * x)
+  }
+  return(func)
+}
 
+x = seq(1, 1e-3, -0.01)
+# true value (latent variable)
+ff = f_data(x)
 
+# observed value is anoisy version of the true value
+y = ff + rnorm(length(x), 0, sd(ff)/10)
+```
+Thus, the function and the data points we generated look like:
+
+```{r}
+  ggplot(data = as.data.frame(cbind(x, y, ff)), aes(x = x, y = y)) + geom_point() + geom_line(aes(x = x, y = ff, color = "red")) + theme_bw() + theme(legend.position = "none")
+```
+
+For the purpose of illustration, we consider a sample of 100 data points from this set as our data in hand.
+```{r}
+# selecting a sample of 100 data points
+x.train = sample(x = x, size = 100, replace = FALSE)
+y.train = sample(x = y, size = 100, replace = FALSE)
+
+# dataset in hand
+training_data = cbind(x.train, y.train)
+```
 
