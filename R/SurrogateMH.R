@@ -1,19 +1,44 @@
-## This is the implementation of Surrogate data Metropolis Hastings algorithm as given in Adams and Murray (2010)
-#
-#' Surrogate data model - Metropolis Hastings
-#'
-#' @param theta hyperparameter of interest
+#' Metropolis Hastings update for Surrogate data model
+#' @description
+#' This is the implementation of the Metropolis-Hastings algorithm to update the hyperparameter
+#'  and latent variable from the joint posterior in Surrogate data model as given in the paper by Adams and Murray (2010)
+#' @param theta scalar hyperparameter of interest
 #' @param f latent variable
-#' @param data the data in hand
+#' @param data the dataset in hand
 #' @param p the prior distribution
-#' @param l the conditional likelihoof function of data conditioned on the latent variable f
+#' @param l the conditional likelihood function of data conditioned on the latent variable f
 #'
-#' @return updated theta and f
+#' @return
+#' Return a list containing
+#' \item{theta}{updated value of theta}
+#' \item{f}{updated value of f}
+#'
 #' @export
-#'
+#' @references
+#' Murray, I., & Adams, R. P. (2010).
+#'  Slice sampling covariance hyperparameters of latent Gaussian models.
+#'   \emph{Advances in neural information processing systems, 23.}
+#'   \doi{10.48550/ARXIV.1006.0868}
 #' @examples
+#' set.seed(12345)
+#' x <- seq(1, 1e-3, -0.1)
+#' ff <- x
+#' y <- ff + rnorm(length(x), 0, sd(ff)/10)
+#' training_data = cbind(y, x)
+#' # prior function
+#' prior <- function(x, mu = 0, sigma = 1){
+#'   return(dnorm(log(x), mu, sigma))
+#' }
+#' # starting points
+#' theta.0 = runif(1)
+#' f.0 = training_data[, 1] / 2
 #'
+#' # We choose the conditional distribution of the data|f as N(f, tau*I)
+#' l <- function(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), tau = 0.1){
+#'   return(dmvnorm_own(x, mu, sigma, tau))
+#' }
 #'
+#' SurrogateMH(theta = theta.0, f = f.0, data = training_data, p = prior, l = l)
 #'
 SurrogateMH <- function(theta, f, data, p, l){
   # fixing S by hand to a constant
