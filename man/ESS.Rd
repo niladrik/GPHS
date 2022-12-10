@@ -2,35 +2,56 @@
 % Please edit documentation in R/ESS.R
 \name{ESS}
 \alias{ESS}
-\title{Title Elliptical Slice Sampling}
+\title{Elliptical Slice Sampling}
 \usage{
-ESS(x, mu, sigma, log.L, niter)
+ESS(x, mu, sigma, log.L, niter = 100)
 }
 \arguments{
 \item{x}{current state}
 
 \item{mu}{mean of Gaussian process}
 
-\item{sigma}{sd of Gaussian process}
+\item{sigma}{covariance matrix of Gaussian process}
 
 \item{log.L}{log-likelihood function}
 
-\item{niter}{maximum number of iterations in one update}
+\item{niter}{maximum number of iterations in one update, default is 100}
 }
 \value{
 It will return the new state x'
 }
 \description{
-Title Elliptical Slice Sampling
+This is the implementation of the Elliptical Slice sampling algorithm as described in the paper by Nishihara, Adams and Murray (2014)
 }
 \examples{
 set.seed(12345)
 x <- seq(1, 1e-3, -0.1)
-ff <- f_data(x)
+ff <- x
 y <- ff + rnorm(length(x), 0, sd(ff)/10)
 training_data = cbind(y, x)
+# conditional likelihood
+log.L = function(y, mu = NULL, sigma = NULL){
+p = length(y)
+if(is.null(mu)){
+  mu = rep(0, p)
+}
+if(is.null(sigma)){
+   sigma = diag(1, p)
+}
+d = mvtnorm::dmvnorm(y, mu, sigma)
+log.val = log(d)
+return(log.val)
+}
+# initial value is randomly chosen to be 5
+# here we consider f = log(l) ~ N(mu, sigma)
+x.start = 5
+# calculating the length of x.start
+n = length(x.start)
+ESS(x = x.start, mu = rep(0, n), sigma = diag(0.1, n), log.L = log.L, niter = 100)
 
-
-
-
+}
+\references{
+Nishihara, R., Murray, I., & Adams, R. P. (2014). Parallel MCMC with generalized elliptical slice sampling.
+\emph{The Journal of Machine Learning Research, 15(1)}, 2087-2112.
+\doi{10.48550/ARXIV.1210.7477}
 }
