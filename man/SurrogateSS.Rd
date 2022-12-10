@@ -2,9 +2,9 @@
 % Please edit documentation in R/SurrogateSS.R
 \name{SurrogateSS}
 \alias{SurrogateSS}
-\title{Surrogate data model - Slice sampling}
+\title{Slice sampling for Surrogate data model}
 \usage{
-SurrogateSS(theta, f, sigma, data, l, p)
+SurrogateSS(theta, f, sigma, data, l, p, niter)
 }
 \arguments{
 \item{theta}{hyperparameter of interest}
@@ -17,11 +17,50 @@ SurrogateSS(theta, f, sigma, data, l, p)
 
 \item{l}{conditional likelihood function}
 
-\item{p}{prior distribution of the covariance hyperparameter}
+\item{p}{prior density function of the covariance hyperparameter}
+
+\item{niter}{maximum number of iterations in an update}
 }
 \value{
-updated theta and f
+Return a list containing
+\item{theta}{updated value of theta}
+\item{f}{updated value of f}
 }
 \description{
-Surrogate data model - Slice sampling
+This is the implementation of the Slice sampling algorithm to update the hyperparameter
+and latent variable from the joint posterior in Surrogate data model as given in the paper by Adams and Murray (2010)
+}
+\examples{
+set.seed(12345)
+# generate a data
+x <- seq(1, 1e-3, -0.1)
+ff <- x
+y <- ff + rnorm(length(x), 0, sd(ff)/10)
+training_data = cbind(y, x)
+# prior function
+prior <- function(x, mu = 0, sigma = 1){
+  return(dnorm(log(x), mu, sigma))
+}
+# starting points
+theta.0 = runif(1)
+f.0 = training_data[, 1] / 2
+
+# We choose the conditional distribution of the data|f as N(f, tau*I)
+l <- function(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), tau = 0.1){
+  return(dmvnorm_own(x, mu, sigma, tau))
+}
+
+# setting the scale parameter
+sigma = 0.2
+
+SurrogateSS(theta = theta.0, f = f.0, sigma = sigma, data = training_data, l = dmvnorm_own, p = prior, niter = 100)
+
+
+
+}
+\references{
+Murray, I., & Adams, R. P. (2010).
+Slice sampling covariance hyperparameters of latent Gaussian models.
+\emph{Advances in neural information processing systems, 23.}
+\doi{10.48550/ARXIV.1006.0868}
 }

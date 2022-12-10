@@ -21,6 +21,32 @@
 #'   \emph{Advances in neural information processing systems, 23.}
 #'   \doi{10.48550/ARXIV.1006.0868}
 #' @examples
+#' set.seed(12345)
+#' # generate a data
+#' x <- seq(1, 1e-3, -0.1)
+#' ff <- x
+#' y <- ff + rnorm(length(x), 0, sd(ff)/10)
+#' training_data = cbind(y, x)
+#' # prior function
+#' prior <- function(x, mu = 0, sigma = 1){
+#'   return(dnorm(log(x), mu, sigma))
+#' }
+#' # starting points
+#' theta.0 = runif(1)
+#' f.0 = training_data[, 1] / 2
+#'
+#' # We choose the conditional distribution of the data|f as N(f, tau*I)
+#' l <- function(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), tau = 0.1){
+#'   return(dmvnorm_own(x, mu, sigma, tau))
+#' }
+#'
+#' # setting the scale parameter
+#' sigma = 0.2
+#'
+#' SurrogateSS(theta = theta.0, f = f.0, sigma = sigma, data = training_data, l = dmvnorm_own, p = prior, niter = 100)
+#'
+#'
+#'
 SurrogateSS <- function(theta, f, sigma, data, l, p, niter){
   # compatibility checks
   if(is.null(theta)){
