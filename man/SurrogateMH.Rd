@@ -28,6 +28,7 @@ and latent variable from the joint posterior in Surrogate data model as given in
 }
 \examples{
 set.seed(12345)
+# generate the data
 x <- seq(1, 1e-3, -0.1)
 ff <- x
 y <- ff + rnorm(length(x), 0, sd(ff)/10)

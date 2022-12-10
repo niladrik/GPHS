@@ -21,6 +21,7 @@
 #'   \doi{10.48550/ARXIV.1006.0868}
 #' @examples
 #' set.seed(12345)
+#' # generate the data
 #' x <- seq(1, 1e-3, -0.1)
 #' ff <- x
 #' y <- ff + rnorm(length(x), 0, sd(ff)/10)
