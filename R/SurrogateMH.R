@@ -39,7 +39,8 @@
 #'   return(dmvnorm_own(x, mu, sigma, tau))
 #' }
 #'
-#' SurrogateMH(theta = theta.0, f = f.0, data = training_data, p = prior, l = l)
+#' SurrogateMH(theta = theta.0, f = f.0,
+#'              data = training_data, p = prior, l = l)
 #'
 SurrogateMH <- function(theta, f, data, p, l){
   # compatibility checks

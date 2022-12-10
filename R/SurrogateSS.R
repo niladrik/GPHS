@@ -43,7 +43,9 @@
 #' # setting the scale parameter
 #' sigma = 0.2
 #'
-#' SurrogateSS(theta = theta.0, f = f.0, sigma = sigma, data = training_data, l = dmvnorm_own, p = prior, niter = 100)
+#' SurrogateSS(theta = theta.0, f = f.0,
+#'              sigma = sigma, data = training_data,
+#'               l = dmvnorm_own, p = prior, niter = 100)
 #'
 #'
 #'

@@ -47,7 +47,8 @@ return(log.val)
 x.start = 5
 # calculating the length of x.start
 n = length(x.start)
-ESS(x = x.start, mu = rep(0, n), sigma = diag(0.1, n), log.L = log.L, niter = 100)
+ESS(x = x.start, mu = rep(0, n),
+    sigma = diag(0.1, n), log.L = log.L, niter = 100)
 
 }
 \references{
