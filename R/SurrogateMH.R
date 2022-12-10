@@ -40,7 +40,7 @@ SurrogateMH <- function(theta, f, data, p, l){
   m = R %*% S_inv %*% g
 
   # Cholesky decomposition of R
-  L = R.result$cholDeco
+  L = R.result$sqrtDeco
 
   # inverse of L
   Linv = mySolve(L)$inv
@@ -63,7 +63,7 @@ SurrogateMH <- function(theta, f, data, p, l){
   m.p = R.p %*% S_inv %*% g
 
   # compute new L matrix
-  L.p = Rp_result$cholDeco # chol(R.p)
+  L.p = Rp_result$sqrtDeco # chol(R.p)
 
   # compute the function
   f.p = as.vector(L.p %*% eta + m.p)

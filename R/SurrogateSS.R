@@ -44,7 +44,7 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
   m = R %*% S_inv %*% g
 
   # Cholesky decomposition of R
-  L = R_return$cholDeco
+  L = R_return$sqrtDeco
 
   # inverse of L
   Linv = mySolve(L)$inv
@@ -84,7 +84,7 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
     m.p = R.p %*% S_inv %*% g
 
     # compute new L matrix
-    L.p = Rp_res$cholDeco
+    L.p = Rp_res$sqrtDeco
 
     # compute the function
     f.p = as.vector(L.p %*% eta + m.p)
