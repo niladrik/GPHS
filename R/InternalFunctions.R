@@ -11,14 +11,6 @@ sqExp <- function(d, phi){
   return(exp(-d^2 * phi / 2))
 }
 
-# density of multivariate normal distribution
-dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), tau = 0.1){
-  p = length(y)
-  # inverse and det of sigma
-  result = mySolve(tau * sigma)
-  return(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
-}
-
 # covariance matrix
 
 Sigma <- function(data, l){
@@ -78,14 +70,4 @@ p_uni <- function(theta, l.min, l.max){
   return(1/(l.min - l.max))
 }
 
-## Inversion of matrix for symmetric matrix
-mySolve <- function(A){
-  eig_result = eigen(A, symmetric = TRUE)
-  lam = eig_result$values
-  V = as.matrix(eig_result$vectors)
-  lam.new = lam
-  lam.new[lam < 1e-11] = 1e-10
-  lam.inv = 1/lam.new
-  cholDeco = sqrt(lam.new) * V
-  return(list(inv = tcrossprod(sqrt(lam.inv) * V), det = prod(lam.new), cholDeco = cholDeco))
-}
+
