@@ -1,33 +1,52 @@
-## This is the implementation of the Algorithm in paper by Nishihara, Adams and Murray (2014)
-
 ## Algorithm 1:
 
-#' Title Elliptical Slice Sampling
-#'
+#' Elliptical Slice Sampling
+#' @description
+#' This is the implementation of the Elliptical Slice sampling algorithm as described in the paper by Nishihara, Adams and Murray (2014)
 #' @param x current state
 #' @param mu mean of Gaussian process
 #' @param sigma sd of Gaussian process
 #' @param log.L log-likelihood function
+#' @param niter maximum number of iterations in one update
 #'
 #' @return It will return the new state x'
 #' @export
 #'
-#' @examples
+#' @references
+#' Nishihara, R., Murray, I., & Adams, R. P. (2014). Parallel MCMC with generalized elliptical slice sampling.
+#' \emph{The Journal of Machine Learning Research, 15(1)}, 2087-2112.
+#' \doi{10.48550/ARXIV.1210.7477}
 #'
+#' @examples
+#' set.seed(12345)
+#' x <- seq(1, 1e-3, -0.1)
+#' ff <- x
+#' y <- ff + rnorm(length(x), 0, sd(ff)/10)
 #'
 #'
 #'
 ESS <- function(x, mu, sigma, log.L, niter){
 
+  # some compatibility checks
+  if(niter <= 0){
+    stop("niter needs to be positive!")
+  }
+  if(sigma <= 0){
+    stop("scale parameter needs to be positive!")
+  }
+  if(is.null(x)){
+    stop("initial state cannot be missing!")
+  }
+
   # choose ellipse
-  v <- mvrnorm(1, mu, sigma)
+  v <- MASS::mvrnorm(1, mu, sigma)
   u <- runif(1, 0, 1)
 
   # set log-likelihood threshold
   log.y <- log.L(x) + log(u)
 
   # drawing an initial proposal
-  theta <- runif(0, 2*pi)
+  theta <- runif(1, 0, 2*pi)
 
   # defining a bracket
   theta.min = theta - 2*pi
