@@ -20,7 +20,7 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
     l = dmvnorm_own
   }
   # fixing S by hand to a constant
-  alpha = 0.5
+  alpha = 0.1
   S = alpha * diag(1, nrow = length(f))
 
   # calculating sigma
@@ -34,14 +34,14 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
   Sig_inv = mySolve(Sig)$inv
 
   # invert S matrix
-  S_inv = mySolve(S)$inv
+  S_inv = diag(1/alpha, nrow = length(f))
 
   R_return = mySolve(Sig_inv + S_inv)
 
   R = R_return$inv
 
   # calculating m
-  m = R %*% mySolve(S)$inv %*% g
+  m = R %*% S_inv %*% g
 
   # Cholesky decomposition of R
   L = R_return$cholDeco
@@ -101,11 +101,10 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
 
     # checking the number of iterations till now
     if(count >= niter){
-      #print("Exceeded the maximum number of iterations!")
       return(list(f = f.p, theta = theta.p))
     }
   }
-
+  print(count)
 
 }
 
@@ -129,5 +128,26 @@ inv_and_logdet = function(Sigma){
   result[[1]] = chol2inv(A) ## inverse from Cholesky decomposition (X'X)^{-1}
   result[[2]] = d
   return(result)
+}
+
+# density of multivariate normal distribution
+#' Title
+#'
+#' @param y vector of quantiles
+#' @param mu mean vector, default is ```rep(0, length(y))```
+#' @param sigma covariance matrix, default is ```diag(1, length(y))```
+#' @param tau constant multiplier for the covariance matrix
+#'
+#' @return It returns the density function for the multivariate normal distribution
+#' @export
+#'
+#' @examples
+#' dmvnorm_own(x=c(0,0))
+#' dmvnorm_own(x=c(0,0), mean=c(1,1))
+dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), tau = 0.1){
+  p = length(y)
+  # inverse and det of sigma
+  result = mySolve(tau * sigma)
+  return(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
 }
 
