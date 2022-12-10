@@ -73,6 +73,7 @@ We consider the model: $y=f+\epsilon$ where y is the observed value, $f$ is the 
 ```{r, warning=FALSE, message=FALSE}
 # loading ggplot for plots
 library(ggplot2)
+
 # setting the seed for reproducibility of the data
 set.seed(12345)
 
@@ -113,7 +114,7 @@ prior <- function(x, mu = 0, sigma = 1){
   return(dnorm(log(x), mu, sigma))
 }
 ```
-We also wish to pre-compute a range of $l$ such that the matern correlatio lies between $0.05$ and $0.95$.
+We also wish to pre-compute a range of $l$ such that the matern correlation lies between $0.05$ and $0.95$.
 ```{r}
 ## matern covariance function
 
@@ -134,7 +135,7 @@ c(l_min, l_max)
 ```
 
 ### ```SurrogateMH``` 
-This function provides provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm.
+This function provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm. We run the update for $100$ times and then make a trace plot of the $l$ sampled from the posterior distribution.
 ```{r}
 n = 1e2
 theta = vector("numeric", n)
@@ -153,12 +154,13 @@ for(i in 1:n){
   theta[i + 1] = result$theta
   f[[i + 1]] = result$f
 }
-plot(theta, type = "l")
+# plot(theta, type = "l")
+ggplot(data = data.frame(iteration = 1:(n+1), sampled_l = theta), aes(x = iteration, y = sampled_l)) + geom_line() + theme_bw()
 ```
-The major problem with this algorithm is that it needs expert tuning. Hence, we go for the Slice sampling of the hyperparameters and the latent variable.
+As is evident from the plot, the hyperparameter learning is not that good. The major problem with this algorithm is that it needs expert tuning. Hence, we go for the Slice sampling of the hyperparameters and the latent variable.
 
 ### ```SurrogateSS```
-This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). For the sake of simplicity, we just show one update ($n=1$) of the algorithm. The user can set $n$ to be any higher value to get greater number of updates. Generally speaking, the Slice Sampling update converges much faster than the Metropolis-Hastings algorithm.
+This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). We run the algorithm for $1000$ times. The user can set $n$ to be any higher value to get greater number of updates. Generally speaking, the Slice Sampling update converges much faster than the Metropolis-Hastings algorithm.
 ```{r}
 # set the number of updates needed
 n = 1e3
@@ -173,14 +175,16 @@ th[1] = runif(1, l_min, l_max)
 sigma = 0.2
 i = 1
 for(i in 1:n){
-results = SurrogateSS(theta = th[i], f = f[[i]], sigma = sigma, data =   training_data, p = prior, niter = 100)
+results = SurrogateSS(theta = th[i], f = f[[i]], sigma = sigma, data =   training_data, l = dmvnorm_own, p = prior, niter = 100)
 f[[i+1]] = results$f
 th[i + 1] = results$theta
 }
-plot(th[-(1:50)], type="l")
+# traceplot of sampled l
+ggplot(data = data.frame(iteration = 1:(n+1), sampled_l = th), aes(x = iteration, y = sampled_l)) + geom_line() + theme_bw()
 ```
 
 ### ```ESS```
+The function ESS is defined according to the Elliptical Slice Sampling algorithm as given in Nishihara, Murray and Adams(2014)\footnote{Nishihara, Murray and Adams(2014)}. For simplicity, we consider the log-likelihood function $L(x)\sim N(\mu,\Sigma)$, given by the ```log.L()``` function. If $\mu$ and $\sigma$ are missing then we assume the standard multivariate normal distribution. We run the chain for $n=1000$ times and the trace plot for the sampled ```l```(the length scale hyperparameter) are plotted.
 ```{r}
 log.L = function(y, mu = NULL, sigma = NULL){
   
@@ -210,7 +214,7 @@ sigma = diag(0.1, p)
 for(i in 1:n){
   f[i + 1] = ESS(f[i], mu,  sigma, log.L, 100)
 }
-plot(exp(f[-(1:50)]), type = "l")
 
+ggplot(data = data.frame(iteration = 51:(n+1), sampled_l = exp(f[-(1:50)])), aes(x = iteration, y = sampled_l)) + geom_line() + theme_bw()
 ```
 
