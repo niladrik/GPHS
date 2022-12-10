@@ -136,37 +136,81 @@ c(l_min, l_max)
 ### ```SurrogateMH``` 
 This function provides provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm.
 ```{r}
+n = 1e2
+theta = vector("numeric", n)
+f = vector("list", n)
 # randomly selecting a start point between l_min and l_max
-theta.0 = runif(1, l_min, l_max)
+theta[1] = runif(1, l_min, l_max)
 # choosing the starting point of f to be y/2
-f.0 = training_data[, 2]/2
+f[[1]] = training_data[, 2]/2
 
 # We choose the conditional distribution of the data|f as N(f, tau*I)
 l <- function(x, mu = rep(0, length(x)), sigma = diag(1, length(x)), tau = 0.1){
-  return(mvtnorm::dmvnorm(x, mu, tau * sigma))
+  return(dmvnorm_own(x, mu, sigma, tau))
 }
-SurrogateMH(theta = theta.0, f = f.0, data = training_data, p = prior, l)
+for(i in 1:n){
+  result = SurrogateMH(theta = theta[i], f = f[[i]], data = training_data, p = prior, l)
+  theta[i + 1] = result$theta
+  f[[i + 1]] = result$f
+}
+plot(theta, type = "l")
 ```
 The major problem with this algorithm is that it needs expert tuning. Hence, we go for the Slice sampling of the hyperparameters and the latent variable.
 
 ### ```SurrogateSS```
-This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). 
+This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). For the sake of simplicity, we just show one update ($n=1$) of the algorithm. The user can set $n$ to be any higher value to get greater number of updates. Generally speaking, the Slice Sampling update converges much faster than the Metropolis-Hastings algorithm.
 ```{r}
-# set.seed(12345)
-f = vector("list", length = 1 + 1)
-th = vector("numeric", 1 + 1)
+# set the number of updates needed
+n = 1e3
+f = vector("list", length = n + 1)
+th = vector("numeric", n + 1)
 
 ## choosing the starting points
-f[[1]] = training_data[, 1]/2
+f[[1]] = training_data[, 1]
 th[1] = runif(1, l_min, l_max)
 
 ## choosing the scale parameter
 sigma = 0.2
 i = 1
-SurrogateSS(theta = th[i], f = f[[i]], sigma = sigma, data = training_data, p = prior, niter = 100)
-#   f[[i + 1]] = result$f
-#   th[i + 1] = result$theta
-# f[[2]]
-# th[2]
+for(i in 1:n){
+results = SurrogateSS(theta = th[i], f = f[[i]], sigma = sigma, data =   training_data, p = prior, niter = 100)
+f[[i+1]] = results$f
+th[i + 1] = results$theta
+}
+plot(th[-(1:50)], type="l")
+```
+
+### ```ESS```
+```{r}
+log.L = function(y, mu = NULL, sigma = NULL){
+  
+  p = length(y)
+  if(is.null(mu)){
+    mu = rep(0, p)
+  }
+  if(is.null(sigma)){
+    sigma = diag(1, p)
+  }
+  d = mvtnorm::dmvnorm(y, mu, sigma)
+  log.val = log(d)
+  return(log.val)
+}
+# choosing the number of updates
+n = 1e3
+f = vector("numeric", n + 1)
+
+# initial value
+f[1] = 5 
+
+# dimension of the vector f
+p = 1
+
+mu = rep(0, p)
+sigma = diag(0.1, p)
+for(i in 1:n){
+  f[i + 1] = ESS(f[i], mu,  sigma, log.L, 100)
+}
+plot(exp(f[-(1:50)]), type = "l")
+
 ```
 
