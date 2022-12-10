@@ -5,9 +5,9 @@
 #' This is the implementation of the Elliptical Slice sampling algorithm as described in the paper by Nishihara, Adams and Murray (2014)
 #' @param x current state
 #' @param mu mean of Gaussian process
-#' @param sigma sd of Gaussian process
+#' @param sigma covariance matrix of Gaussian process
 #' @param log.L log-likelihood function
-#' @param niter maximum number of iterations in one update
+#' @param niter maximum number of iterations in one update, default is 100
 #'
 #' @return It will return the new state x'
 #' @export
@@ -22,16 +22,34 @@
 #' x <- seq(1, 1e-3, -0.1)
 #' ff <- x
 #' y <- ff + rnorm(length(x), 0, sd(ff)/10)
+#' training_data = cbind(y, x)
+#' # conditional likelihood
+#' log.L = function(y, mu = NULL, sigma = NULL){
+#' p = length(y)
+#' if(is.null(mu)){
+#'   mu = rep(0, p)
+#' }
+#' if(is.null(sigma)){
+#'    sigma = diag(1, p)
+#' }
+#' d = mvtnorm::dmvnorm(y, mu, sigma)
+#' log.val = log(d)
+#' return(log.val)
+#' }
+#' # initial value is randomly chosen to be 5
+#' # here we consider f = log(l) ~ N(mu, sigma)
+#' x.start = 5
+#' # calculating the length of x.start
+#' n = length(x.start)
+#' ESS(x = x.start, mu = rep(0, n), sigma = diag(0.1, n), log.L = log.L, niter = 100)
 #'
-#'
-#'
-ESS <- function(x, mu, sigma, log.L, niter){
+ESS <- function(x, mu, sigma, log.L, niter = 100){
 
   # some compatibility checks
   if(niter <= 0){
     stop("niter needs to be positive!")
   }
-  if(sigma <= 0){
+  if(any(sigma <= 0)){
     stop("scale parameter needs to be positive!")
   }
   if(is.null(x)){
