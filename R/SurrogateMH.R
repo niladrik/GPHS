@@ -28,21 +28,22 @@ SurrogateMH <- function(theta, f, data, p, l){
 
   # calculating R
   # invert sigma matrix
-  Sig_inv = solve(Sig)
+  Sig_inv = mySolve(Sig)$inv
 
   # invert S matrix
   S_inv = diag(1/alpha, nrow = length(f))
 
-  R = solve(S_inv + Sig_inv)
+  R.result = mySolve(S_inv + Sig_inv)
+  R = R.result$inv
 
   # calculating m
   m = R %*% S_inv %*% g
 
   # Cholesky decomposition of R
-  L = chol(R)
+  L = R.result$cholDeco
 
   # inverse of L
-  Linv = solve(L)
+  Linv = mySolve(L)$inv
 
   # compute the latent variable
   eta = Linv %*% (f - m)
@@ -55,13 +56,14 @@ SurrogateMH <- function(theta, f, data, p, l){
   Sigma.p = Sigma(data, theta.p)
 
   # new R
-  R.p = solve(solve(Sigma.p) + S_inv)
+  Rp_result = mySolve(mySolve(Sigma.p)$inv + S_inv)
+  R.p = Rp_result$inv
 
   # calculating new m
   m.p = R.p %*% S_inv %*% g
 
   # compute new L matrix
-  L.p = chol(R.p)
+  L.p = Rp_result$cholDeco # chol(R.p)
 
   # compute the function
   f.p = as.vector(L.p %*% eta + m.p)
@@ -70,8 +72,8 @@ SurrogateMH <- function(theta, f, data, p, l){
   u = runif(1)
 
   # calculate the ratio
-  lik.new = l(f.p) * mvtnorm::dmvnorm(g, rep(0, length(g)), Sigma.p + S) * p(theta.p) * dnorm(log(theta.p), log(theta), 1) / theta.p
-  lik.old = l(f) * mvtnorm::dmvnorm(g, rep(0, length(g)), Sig + S) * p(theta) * dnorm(log(theta), log(theta.p), 1) / theta
+  lik.new = l(f.p) * dmvnorm_own(g, rep(0, length(g)), Sigma.p + S) * p(theta.p) * dnorm(log(theta.p), log(theta), 1) / theta.p
+  lik.old = l(f) * dmvnorm_own(g, rep(0, length(g)), Sig + S) * p(theta) * dnorm(log(theta), log(theta.p), 1) / theta
   if(lik.new / lik.old > u){
     return(list(f = f.p, theta = theta.p))
   }else{
