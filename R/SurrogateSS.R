@@ -1,24 +1,59 @@
-# This is implementation of algorithm 4 in Adams and Murray(2010)
-
-#' Surrogate data model - Slice sampling
-#'
+#' Slice sampling for Surrogate data model
+#' @description
+#' This is the implementation of the Slice sampling algorithm to update the hyperparameter
+#'  and latent variable from the joint posterior in Surrogate data model as given in the paper by Adams and Murray (2010)
 #' @param theta hyperparameter of interest
 #' @param f latent variable
 #' @param sigma scale parameter
 #' @param l conditional likelihood function
-#' @param p prior distribution of the covariance hyperparameter
+#' @param p prior density function of the covariance hyperparameter
 #' @param data the data in hand
 #' @param niter maximum number of iterations in an update
 #'
-#' @return updated theta and f
-#' @export
+#' @return  Return a list containing
+#' \item{theta}{updated value of theta}
+#' \item{f}{updated value of f}
 #'
+#' @export
+#' @references
+#' Murray, I., & Adams, R. P. (2010).
+#'  Slice sampling covariance hyperparameters of latent Gaussian models.
+#'   \emph{Advances in neural information processing systems, 23.}
+#'   \doi{10.48550/ARXIV.1006.0868}
 #' @examples
-SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
-  # checking if l is NULL then assigning the multivariate normal density to it
-  if(is.null(l)){
-    l = dmvnorm_own
+SurrogateSS <- function(theta, f, sigma, data, l, p, niter){
+  # compatibility checks
+  if(is.null(theta)){
+    stop("theta cannot be null")
   }
+  if(is.null(f)){
+    stop("f cannot be null")
+  }
+  if(is.null(data)){
+    stop("data cannot be null")
+  }
+  if(length(theta) != 1){
+    stop("theta needs to be a scalar")
+  }
+  if(length(f) != nrow(data)){
+    stop("dimension of f and data are not compatible")
+  }
+  if(!is.function(p)){
+    stop("p needs to be a function")
+  }
+  if(!is.function(l)){
+    stop("l needs to be a function")
+  }
+  if(niter < 0){
+    stop("niter cannot be negative or 0")
+  }
+
+
+  # # checking if l is NULL then assigning the multivariate normal density to it
+  # if(is.null(l)){
+  #   l = dmvnorm_own
+  # }
+
   # fixing S by hand to a constant
   alpha = 0.1
   S = alpha * diag(1, nrow = length(f))
@@ -122,6 +157,10 @@ SurrogateSS <- function(theta, f, sigma, data, l = NULL, p, niter){
 #' inv_and_logdet(mat)
 
 inv_and_logdet = function(Sigma){
+  # compatibility check
+  if(!isSymmetric.matrix(Sigma)){
+    stop("Sigma should be symmetric")
+  }
   A = chol(Sigma) ## Cholesky decomposition
   d = 2 * sum(log(diag(A))) ## determinant
   result = list()
@@ -135,16 +174,31 @@ inv_and_logdet = function(Sigma){
 #' @param y vector of quantiles
 #' @param mu mean vector, default is ```rep(0, length(y))```
 #' @param sigma covariance matrix, default is ```diag(1, length(y))```
-#' @param tau constant multiplier for the covariance matrix
+#' @param tau constant multiplier (positive) for the covariance matrix, default is $0.1$
 #'
 #' @return It returns the density function for the multivariate normal distribution
 #' @export
 #'
 #' @examples
-#' dmvnorm_own(x=c(0,0))
-#' dmvnorm_own(x=c(0,0), mean=c(1,1))
+#' dmvnorm_own(y = c(0,0))
+#' dmvnorm_own(y = c(0,0), mu = c(1,1))
+#' dmvnorm_own(y = c(0,0), mu = c(1,1), sigma = diag(2, 2), tau = 1)
 dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), tau = 0.1){
   p = length(y)
+  # compatibility checks
+  if(length(mu) != p){
+    stop("y and mu are not compatible")
+  }
+  if(!isSymmetric(sigma, tol = 1e-5)){
+    stop("sigma needs to be a symmetric matrix")
+  }
+  if(nrow(sigma) != p){
+    stop("y and sigma are not compatible")
+  }
+  if(tau <= 0){
+    stop("tau needs to be positive")
+  }
+
   # inverse and det of sigma
   result = mySolve(tau * sigma)
   return(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
@@ -163,15 +217,26 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
 #' mySolve(A)
 #'
 mySolve <- function(A){
+  # compatibility check
+  if(!isSymmetric.matrix(A)){
+    stop("A must be symmetric")
+  }
+  # eigen decomposition
   eig_result = eigen(A, symmetric = TRUE)
+
+  # eigen values
   lam = eig_result$values
+
+  # eigen vector matrix
   V = eig_result$vectors
-  lam.new = lam
+
   # fixing the tolerance for eigen values
   tol = 1e-7
+
+  # extracting the eigen values which are above the tolerance level
   pos = lam > tol
 
-  # inverse
+  # calculating the inverse
   inv = tcrossprod(V[, pos] %*% diag(1/lam[pos]), V[, pos])
 
   # determinant
