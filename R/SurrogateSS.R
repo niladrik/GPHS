@@ -130,8 +130,7 @@ inv_and_logdet = function(Sigma){
   return(result)
 }
 
-# density of multivariate normal distribution
-#' Title
+#' Density of multivariate normal distribution
 #'
 #' @param y vector of quantiles
 #' @param mu mean vector, default is ```rep(0, length(y))```
@@ -151,3 +150,35 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
   return(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
 }
 
+#' Inversion of a symmetric matrix
+#'
+#' @param A a symmetric matrix
+#'
+#' @return A list containing the inverse, determinant and the square root matrix $Q$ of $A$, that is, it holds $QQ=A$
+#'
+#' @export
+#'
+#' @examples
+#' A = diag(2, 2)
+#' mySolve(A)
+#'
+mySolve <- function(A){
+  eig_result = eigen(A, symmetric = TRUE)
+  lam = eig_result$values
+  V = eig_result$vectors
+  lam.new = lam
+  # fixing the tolerance for eigen values
+  tol = 1e-7
+  pos = lam > tol
+
+  # inverse
+  inv = tcrossprod(V[, pos] %*% diag(1/lam[pos]), V[, pos])
+
+  # determinant
+  det = prod(lam[pos])
+
+  # square root decomposition
+  sqrt.mat = tcrossprod(V[, pos] %*% diag(sqrt(lam[pos])), V[, pos])
+
+  return(list(inv = inv, det = det, sqrtDeco = sqrt.mat))
+}
