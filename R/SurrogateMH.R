@@ -41,6 +41,29 @@
 #' SurrogateMH(theta = theta.0, f = f.0, data = training_data, p = prior, l = l)
 #'
 SurrogateMH <- function(theta, f, data, p, l){
+  # compatibility checks
+  if(is.null(theta)){
+    stop("theta cannot be null")
+  }
+  if(is.null(f)){
+    stop("f cannot be null")
+  }
+  if(is.null(data)){
+    stop("data cannot be null")
+  }
+  if(length(theta) != 1){
+    stop("theta needs to be a scalar")
+  }
+  if(length(f) != nrow(data)){
+    stop("dimension of f and data are not compatible")
+  }
+  if(!is.function(p)){
+    stop("p needs to be a function")
+  }
+  if(!is.function(l)){
+    stop("l needs to be a function")
+  }
+
   # fixing S by hand to a constant
   alpha = 0.1
   S = alpha * diag(1, nrow = length(f))
