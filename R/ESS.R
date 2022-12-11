@@ -3,8 +3,8 @@
 #' Elliptical Slice Sampling
 #' @description
 #' This is the implementation of the Elliptical Slice sampling algorithm as described in the paper by Nishihara, Adams and Murray (2014)
-#' @param x current state
-#' @param mu mean of Gaussian process
+#' @param x a scalar or vector denoting the current state
+#' @param mu mean of Gaussian process, having same dimension as x
 #' @param sigma covariance matrix of Gaussian process
 #' @param log.L log-likelihood function
 #' @param niter maximum number of iterations in one update, default is 100
@@ -19,11 +19,7 @@
 #'
 #' @examples
 #' set.seed(12345)
-#' x <- seq(1, 1e-3, -0.1)
-#' ff <- x
-#' y <- ff + rnorm(length(x), 0, sd(ff)/10)
-#' training_data = cbind(y, x)
-#' # conditional likelihood
+#' # log likelihood
 #' log.L = function(y, mu = NULL, sigma = NULL){
 #' p = length(y)
 #' if(is.null(mu)){
@@ -37,7 +33,7 @@
 #' return(log.val)
 #' }
 #' # initial value is randomly chosen to be 5
-#' # here we consider f = log(l) ~ N(mu, sigma)
+#' # here we consider f ~ N(mu, sigma)
 #' x.start = 5
 #' # calculating the length of x.start
 #' n = length(x.start)
@@ -55,6 +51,15 @@ ESS <- function(x, mu, sigma, log.L, niter = 100){
   }
   if(is.null(x)){
     stop("initial state cannot be missing!")
+  }
+  if(length(x) != length(mu)){
+    stop("x and mu not compatible")
+  }
+  if(length(x) != nrow(sigma)){
+    stop("x and sigma not compatible")
+  }
+  if(isSymmetric.matrix(sigma, tol = 1e-6)){
+    stop("sigma should be symmetric")
   }
 
   # choose ellipse
