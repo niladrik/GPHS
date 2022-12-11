@@ -246,7 +246,7 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
 #'
 mySolve <- function(A){
   # compatibility check
-  if(!isSymmetric.matrix(A)){
+  if(!isSymmetric.matrix(A, tol = 1e-5)){
     stop("A must be symmetric")
   }
   # eigen decomposition
@@ -265,13 +265,13 @@ mySolve <- function(A){
   pos = lam > tol
 
   # calculating the inverse
-  inv = tcrossprod(V[, pos] %*% diag(1/lam[pos]), V[, pos])
+  inv = tcrossprod(V[, pos, drop = FALSE] %*% diag(x = 1/lam[pos], nrow = length(lam[pos])), V[, pos, drop = FALSE])
 
   # determinant
   det = prod(lam[pos])
 
   # square root decomposition
-  sqrt.mat = tcrossprod(V[, pos] %*% diag(sqrt(lam[pos])), V[, pos])
+  sqrt.mat = tcrossprod(V[, pos, drop = FALSE] %*% diag(sqrt(lam[pos])), V[, pos, drop = FALSE])
 
   return(list(inv = inv, det = det, sqrtDeco = sqrt.mat))
 }

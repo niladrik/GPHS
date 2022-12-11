@@ -58,7 +58,7 @@ ESS <- function(x, mu, sigma, log.L, niter = 100){
   if(length(x) != nrow(sigma)){
     stop("x and sigma not compatible")
   }
-  if(isSymmetric.matrix(sigma, tol = 1e-6)){
+  if(!isSymmetric.matrix(sigma, tol = 1e-5)){
     stop("sigma should be symmetric")
   }
 
