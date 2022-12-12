@@ -16,5 +16,6 @@ Imports:
     stats
 Suggests: 
     knitr,
-    rmarkdown
+    rmarkdown,
+    tinytex
 VignetteBuilder: knitr
