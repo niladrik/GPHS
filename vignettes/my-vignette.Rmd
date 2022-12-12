@@ -1,6 +1,6 @@
 ---
 title: "An introduction to GPHS"
-output: pdf_document
+output: html_vignette
 header-includes:
   \usepackage{fvextra}
   \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
@@ -218,3 +218,27 @@ for(i in 1:n){
 ggplot(data = data.frame(iteration = 51:(n+1), sampled_l = exp(f[-(1:50)])), aes(x = iteration, y = sampled_l)) + geom_line() + theme_bw()
 ```
 
+### ```mySolve```
+This function is useful when the matrix to invert is not a positive definite matrix. It generates the eigen decomposition of the matrix and then generates the inverse by suitably truncating the decomposition. In addition to the inverse, it also returns the determinant and the square root decomposition of the matrix
+```{r}
+## a matrix to invert
+A = diag(2, nrow = 2)
+mySolve(A)
+```
+
+
+### ```dmvnorm_own```
+
+
+
+## References
+Murray, I., & Adams, R. P. (2010).
+Slice sampling covariance hyperparameters of latent Gaussian models.
+_Advances in neural information processing systems, 23._
+\url{https://doi.org/10.48550/arXiv.1006.0868}
+
+Murray, I., Adams, R., & MacKay, D. (2010, March). Elliptical slice sampling. In _Proceedings of the thirteenth international conference on artificial intelligence and statistics_ (pp. 541-548). JMLR Workshop and Conference Proceedings. \url{https://doi.org/10.48550/arxiv.1001.0175}
+
+Nishihara, R., Murray, I., & Adams, R. P. (2014). Parallel MCMC with generalized elliptical slice sampling.
+_The Journal of Machine Learning Research, 15(1)_, 2087-2112.
+\url{https://doi.org/10.48550/arXiv.1210.7477}
