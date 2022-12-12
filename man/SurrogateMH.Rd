@@ -7,15 +7,15 @@
 SurrogateMH(theta, f, data, p, l)
 }
 \arguments{
-\item{theta}{scalar hyperparameter of interest}
+\item{theta}{a scalar, hyperparameter of interest}
 
-\item{f}{latent variable}
+\item{f}{a scalar or vector, latent variable}
 
-\item{data}{the dataset in hand}
+\item{data}{a matrix or data frame, the dataset in hand}
 
-\item{p}{the prior distribution}
+\item{p}{a function, the prior distribution}
 
-\item{l}{the conditional likelihood function of data conditioned on the latent variable f}
+\item{l}{a function, the conditional likelihood function of data conditioned on the latent variable f}
 }
 \value{
 Return a list containing

@@ -2,11 +2,11 @@
 #' @description
 #' This is the implementation of the Metropolis-Hastings algorithm to update the hyperparameter
 #'  and latent variable from the joint posterior in Surrogate data model as given in the paper by Adams and Murray (2010)
-#' @param theta scalar hyperparameter of interest
-#' @param f latent variable
-#' @param data the dataset in hand
-#' @param p the prior distribution
-#' @param l the conditional likelihood function of data conditioned on the latent variable f
+#' @param theta a scalar, hyperparameter of interest
+#' @param f a scalar or vector, latent variable
+#' @param data a matrix or data frame, the dataset in hand
+#' @param p a function, the prior distribution
+#' @param l a function, the conditional likelihood function of data conditioned on the latent variable f
 #'
 #' @return
 #' Return a list containing
@@ -65,7 +65,12 @@ SurrogateMH <- function(theta, f, data, p, l){
   if(!is.function(l)){
     stop("l needs to be a function")
   }
-
+  if(is.data.frame(data)){
+    data = as.matrix(data)
+  }
+  if(!is.matrix(data)){
+    stop("data should be a matrix or data frame")
+  }
   # fixing S by hand to a constant
   alpha = 0.1
   S = alpha * diag(1, nrow = length(f))

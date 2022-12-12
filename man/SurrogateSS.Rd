@@ -7,19 +7,19 @@
 SurrogateSS(theta, f, sigma, data, l, p, niter)
 }
 \arguments{
-\item{theta}{hyperparameter of interest}
+\item{theta}{a scalar, hyperparameter of interest}
 
-\item{f}{latent variable}
+\item{f}{a scalar or vector, latent variable}
 
-\item{sigma}{scale parameter}
+\item{sigma}{a scalar, scale parameter}
 
-\item{data}{the data in hand}
+\item{data}{a matrix or data frame, the data in hand}
 
-\item{l}{conditional likelihood function}
+\item{l}{a function, conditional likelihood function}
 
-\item{p}{prior density function of the covariance hyperparameter}
+\item{p}{a function, prior density function of the covariance hyperparameter}
 
-\item{niter}{maximum number of iterations in an update}
+\item{niter}{a scalar, maximum number of iterations in an update}
 }
 \value{
 Return a list containing

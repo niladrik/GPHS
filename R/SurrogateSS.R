@@ -2,13 +2,13 @@
 #' @description
 #' This is the implementation of the Slice sampling algorithm to update the hyperparameter
 #'  and latent variable from the joint posterior in Surrogate data model as given in the paper by Adams and Murray (2010)
-#' @param theta hyperparameter of interest
-#' @param f latent variable
-#' @param sigma scale parameter
-#' @param l conditional likelihood function
-#' @param p prior density function of the covariance hyperparameter
-#' @param data the data in hand
-#' @param niter maximum number of iterations in an update
+#' @param theta a scalar, hyperparameter of interest
+#' @param f a scalar or vector, latent variable
+#' @param sigma a scalar, scale parameter
+#' @param l a function, conditional likelihood function
+#' @param p a function, prior density function of the covariance hyperparameter
+#' @param data a matrix or data frame, the data in hand
+#' @param niter a scalar, maximum number of iterations in an update
 #'
 #' @return  Return a list containing
 #' \item{theta}{updated value of theta}
@@ -74,6 +74,12 @@ SurrogateSS <- function(theta, f, sigma, data, l, p, niter){
   }
   if(niter < 0){
     stop("niter cannot be negative or 0")
+  }
+  if(is.data.frame(data)){
+    data = as.matrix(data)
+  }
+  if(!is.matrix(data)){
+    stop("data should be a matrix or data frame")
   }
 
 
@@ -207,7 +213,7 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
 
   # inverse and det of sigma
   result = mySolve(tau * sigma)
-  return(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2))
+  return(as.numeric(exp(-crossprod(y - mu, result[[1]] %*% (y - mu)) * 0.5 - result[[2]] - p * log(2*pi) / 2)))
 }
 
 #' Inversion of a symmetric matrix
