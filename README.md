@@ -34,21 +34,24 @@ devtools::install_github("niladrik/GPHS")
 devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
 ```
 
+For installation with vignette, $\LaTeX$ should be pre-installed in your
+machine
+
 ### Examples
 
-Here we would give an example of the function `ESS`.  
+Here we would give an illustration of the function `ESS`.  
 
-We define the log likelihood function
+We begin by defining the log likelihood function
 
 ``` r
 library(GPHS)
 set.seed(12345)
 
-# defining the log likelihood function
+## defining the log likelihood function
 logl = function(y, mu = rep(0, length(y)), sigma = diag(1, length(y))){
-d = mvtnorm::dmvnorm(y, mu, sigma)
-log.val = log(d)
-return(log.val)
+  d = mvtnorm::dmvnorm(y, mu, sigma)
+  log.val = log(d)
+  return(log.val)
 }
 ```
 
@@ -56,6 +59,7 @@ Then we fix some random starting points for the parameter of interest:
 `x`, and we run the `ESS` update 100 times.
 
 ``` r
+## number of updates
 n = 100
 ## vector of generated x
 x_vec = vector("numeric", n + 1)
@@ -70,8 +74,40 @@ for(i in 1:n){
 ```
 
 The trace plot of the samples drawn is:
-<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" /> For
-the illustration of the other functions, please refer to the vignette.
+<img src="man/figures/README-unnamed-chunk-6-1.png" width="100%" /> The
+Metropolis-Hastings and the Slice sampling algorithms for Surrogate data
+model are implemented in `SurrogateMH` and `SurrogateSS` respectively.
+For the illustration of these functions, please refer to the vignette.  
+This package also contains two other functions:`mySolve` and
+`dmvnorm_own`. The function `mySolve` helps to find the inverse,
+determinant and square-root decomposition of (symmetric) matrices that
+are nearly positive-definite.
+
+``` r
+A = diag(1:2)
+mySolve(A)
+#> $inv
+#>      [,1] [,2]
+#> [1,]    1  0.0
+#> [2,]    0  0.5
+#> 
+#> $det
+#> [1] 2
+#> 
+#> $sqrtDeco
+#>      [,1]     [,2]
+#> [1,]    1 0.000000
+#> [2,]    0 1.414214
+```
+
+The function `dmvnorm_own` gives the density of a multivariate Normal
+distribution. For illustration, suppose we want to find the density of
+(0,0) when it is drawn from $N(0,0.1\times I)$ distribution
+
+``` r
+dmvnorm_own(y = c(0, 0))
+#> [1] 0.1575713
+```
 
 ### References
 
