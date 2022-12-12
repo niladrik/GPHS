@@ -12,12 +12,11 @@ models. It includes the Elliptical Slice Sampling algorithm as discussed
 in [Nishihara, Murray and Adams
 (2014)](https://www.cs.princeton.edu/~rpa/pubs/nishihara2014generalized.pdf)
 and Metropolis-Hastings algorithm and Slice sampling algorithm for the
-Surrogate data model as discussed in [Murray et. al
-(2010)](https://arxiv.org/abs/1001.0175). In addition to these
+Surrogate data model as discussed in [Murray et
+al. (2010)](https://arxiv.org/abs/1001.0175). In addition to these
 functions, the package also provides the users with a function to invert
-a matrix using (1) Cholesky decomposition and (2) Eigen decomposition,
-and a function to calculate the density of a multivariate normal
-distribution.
+a matrix using Eigen decomposition, and a function to calculate the
+density of a multivariate normal distribution.
 
 ### Installation
 
