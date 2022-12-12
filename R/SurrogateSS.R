@@ -172,31 +172,6 @@ SurrogateSS <- function(theta, f, sigma, data, l, p, niter){
 }
 
 
-#' Calculate the inverse and log(determinant) of symmetric matrix
-#'
-#' @param Sigma is a symmetric matrix whose inverse and determinant are to be calculated
-#'
-#' @return A list containing the inverse and the log(determinant) of the matrix
-#'
-#' @export
-#'
-#' @examples
-#' mat <- diag(c(2, 4))
-#' inv_and_logdet(mat)
-
-inv_and_logdet = function(Sigma){
-  # compatibility check
-  if(!isSymmetric.matrix(Sigma)){
-    stop("Sigma should be symmetric")
-  }
-  A = chol(Sigma) ## Cholesky decomposition
-  d = 2 * sum(log(diag(A))) ## determinant
-  result = list()
-  result[[1]] = chol2inv(A) ## inverse from Cholesky decomposition (X'X)^{-1}
-  result[[2]] = d
-  return(result)
-}
-
 #' Density of multivariate normal distribution
 #'
 #' @param y vector of quantiles

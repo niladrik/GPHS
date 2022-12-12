@@ -6,12 +6,7 @@ matern = function(d , phi, nu = 3){ # previous value of nu = 3
 }
 
 
-## square exponential function:
-sqExp <- function(d, phi){
-  return(exp(-d^2 * phi / 2))
-}
-
-# covariance matrix
+## covariance matrix
 
 Sigma <- function(data, l){
   # number of columns
@@ -37,37 +32,4 @@ Sigma <- function(data, l){
 
   return(new_cov)
 }
-
-
-# function to generate data
-
-f_data <- function(x){
-  func <- 0
-  for(j in 1:5000){
-    func <- func + j^(-1.7) * sin(j) * cos(pi * (j - 0.5) * x)
-  }
-  return(func)
-}
-
-
-#### Inverse gamma prior  ####
-
-# the prior function
-p_ig <- function(theta){
-  # length scale hyperparameter having discrete uniform prior over 20 points
-  l = theta[[1]]
-
-  # variance of the signal function having inverse gamma(1, 1) prior
-  tau = theta[[2]]
-  # IG(alpha, beta)
-  alpha = 1
-  beta = 1
-  return( beta^alpha * tau^(-alpha - 1) * exp(-beta/ tau) / (gamma(alpha) * 20))
-}
-
-#### Uniform prior ####
-p_uni <- function(theta, l.min, l.max){
-  return(1/(l.min - l.max))
-}
-
 
