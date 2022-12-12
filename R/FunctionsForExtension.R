@@ -1,15 +1,6 @@
 #### Functions for future extension ####
 
-#' Calculate the inverse and log(determinant) of symmetric matrix
-#'
-#' @param Sigma is a symmetric matrix whose inverse and determinant are to be calculated
-#'
-#' @return A list containing the inverse and the log(determinant) of the matrix
-#'
-#'
-#' @examples
-#' mat <- diag(c(2, 4))
-#' inv_and_logdet(mat)
+# Calculate the inverse and log(determinant) of symmetric matrix
 
 inv_and_logdet = function(Sigma){
   # compatibility check
