@@ -17,8 +17,8 @@ knitr::opts_chunk$set(
 )
 ```
 ## Introduction
-Hyperparameter selection in bayesian inference is very crucial as it specifies the covariance structure. Typically, we integrate over these hyperparameters but they often correspond to high-dimensional integrals which becomes analytically intractable. This integration is often performed by  MCMC, but MCMC converges very slowly and it needs expert tuning. Hence, we need special techniques to handle these situations. \
-`GPHS` is an R package that provides various methods to perform hyperparameter selection in Gaussian processes. It has three algorithms to perform the update of hyperparameters. We have Metropolis-Hastings algorithm and the Slice sampling algorithm for a Surrogate data model as discussed in Murray and Adams (2010)\footnote{Murray and Adams (2010)}. We also have another function that implements the Elliptical Slice Sampling as given in Murray et al (2010) and Nishihara, Murray and Adams (2014). In addition to these algorithms, `GPHS` also has a function to invert symmetric matrices based on Cholesky decomposition, which is faster than the default `solve()` function in R.\
+Hyperparameter selection in Bayesian inference is very crucial as it specifies the covariance structure. Typically, we integrate over these hyperparameters but they often correspond to high-dimensional integrals which becomes analytically intractable. This integration is often performed by  MCMC, but MCMC converges very slowly and it needs expert tuning. Hence, we need special techniques to handle these situations. \
+`GPHS` is an R package that provides various methods to perform hyperparameter selection in Gaussian processes. It has three algorithms to perform the update of hyperparameters. We have Metropolis-Hastings algorithm and the Slice sampling algorithm for a Surrogate data model as discussed in Murray and Adams (2010). We also have another function that implements the Elliptical Slice Sampling as given in Murray et al (2010) and Nishihara, Murray and Adams (2014). In addition to these algorithms, `GPHS` also has a function to invert symmetric matrices based on Cholesky decomposition, which is faster than the default `solve()` function in R.\
 
 ### Elliptical Slice Sampling (ESS)
 Elliptical Slice Sampling, first discussed by Murray and Adams in 2010, is a MCMC technique that provides a way to sample along an ellipse with an adaptive step-size. It is designed to sample from posterior of the form $\pi(x)\propto L(x)N(x;\mu,\Sigma)$, where $L(\cdot)$ denotes the likelihood function and $N(\mu,\Sigma)$ denotes a multivariate Gaussian prior. The major advantage of this method is that it has no free tuning parameters. It relies on the fact that Gaussian prior mixes rapidly even when there is strong dependency induced by the covariance structure.\
@@ -36,13 +36,13 @@ $$\begin{aligned}
 $$
 We assume that the covariance matrix $\Sigma_\theta$ is arbitrary positive definite matrix. For non-Gaussian likelihoods, we sample from the joint posterior:
 $$P(f,\theta)\propto L(f)N(f;0,\Sigma_\theta)p_h(\theta)$$
-To guide joint proporsals of the hyperparameters and the latent variables, we create an auxiliary variable that introduces a surrogate gaussian observation. The Gaussian model is augmented with a noisy version of the true latent variable, $g$:
+To guide joint proposals of the hyperparameters and the latent variables, we create an auxiliary variable that introduces a surrogate gaussian observation. The Gaussian model is augmented with a noisy version of the true latent variable, $g$:
 $$P(g|f,\theta)=N(g;f,S_\theta)$$
 Here, $S_\theta$ can be set by hand to a fixed value or a value depending on the current hyperparameters. We first draw the auxiliary variable from the marginal distribution:
 $$P(g|\theta)=N(g;0,\Sigma_\theta+S_\theta)$$
 and then sample the latent values conditioned on the auxiliary variables:
 $$P(f|g,\theta)=N(f;m_{\theta,g},R_\theta),\text{ where } R_{\theta}=\left(\Sigma_\theta^{-1}+S_\theta^{-1}\right)^{-1}\text{ and }m_{\theta,g}=R_\theta S_\theta^{-1}g$$
-The sampling process can be described like a draw from a spheical Gaussian as follows:
+The sampling process can be described like a draw from a spherical Gaussian as follows:
 $$\eta\sim N(0,I),\; f=L_{R_\theta}\eta+m_{\theta,g},\text{ where }L_{R_\theta}L_{R_\theta}^T=R_\theta$$
 We update the hyperparameters $\theta$  conditioned on the 
 "whitened" variables $\eta$ and the surrogate data $g$.
@@ -64,7 +64,7 @@ devtools::install_github("niladrik/GPHS", build_vignettes = TRUE)
 ```
 
 ## Quick Start
-This section will convey a general idea of the package. We would briefly mention the functions that are there in the package, their inputs and their outputs.\
+This section will convey a idea of the contents and the usage of the functions in the package. We would briefly mention the functions that are there in the package, their inputs and their outputs.\
 Firstly, we load the package.
 ```{r setup}
 library(GPHS)
@@ -135,7 +135,8 @@ c(l_min, l_max)
 ```
 
 ### ```SurrogateMH``` 
-This function provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm. We run the update for $100$ times and then make a trace plot of the $l$ sampled from the posterior distribution.
+This function provides an update of the latent variable $f$ and the hyperparameter $\theta$ using the Metropolis-Hastings algorithm. It takes as input the initial state of the hyperparameter $\theta$(scalar or vector) and the latent variable $f$(scalar or vector), the data in hand(matrix or data frame), the prior of the hyperparameter(a function), and the conditional likelihood of the data conditioned on the latent variable(a function). It returns the updated $\theta$ and $f$\
+We run the update for $100$ times and then make a trace plot of the $l$ sampled from the posterior distribution.
 ```{r}
 n = 1e2
 theta = vector("numeric", n)
@@ -160,7 +161,8 @@ ggplot(data = data.frame(iteration = 1:(n+1), sampled_l = theta), aes(x = iterat
 As is evident from the plot, the hyperparameter learning is not that good. The major problem with this algorithm is that it needs expert tuning. Hence, we go for the Slice sampling of the hyperparameters and the latent variable.
 
 ### ```SurrogateSS```
-This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). We run the algorithm for $1000$ times. The user can set $n$ to be any higher value to get greater number of updates. Generally speaking, the Slice Sampling update converges much faster than the Metropolis-Hastings algorithm.
+This function updates the hyperparameter and the latent variable according to the slice sampling algorithm provided in Adams and Murray(2010). It takes as input the initial state of the hyperparameter $\theta$(scalar or vector) and the latent variable $f$(scalar or vector), the data in hand(matrix or data frame), scale parameter $\sigma$ (scalar), the prior of the hyperparameter(a function), the conditional likelihood of the data conditioned on the latent variable(a function) and the maximum of number of iterations per update (scalar). It returns the updated $\theta$ and $f$\
+We run the algorithm for $1000$ times. The user can set $n$ to be any higher value to get greater number of updates. Generally speaking, the Slice Sampling update converges much faster than the Metropolis-Hastings algorithm.
 ```{r}
 # set the number of updates needed
 n = 1e3
@@ -184,7 +186,7 @@ ggplot(data = data.frame(iteration = 1:(n+1), sampled_l = th), aes(x = iteration
 ```
 
 ### ```ESS```
-The function ESS is defined according to the Elliptical Slice Sampling algorithm as given in Nishihara, Murray and Adams(2014)\footnote{Nishihara, Murray and Adams(2014)}. For simplicity, we consider the log-likelihood function $L(x)\sim N(\mu,\Sigma)$, given by the ```log.L()``` function. If $\mu$ and $\sigma$ are missing then we assume the standard multivariate normal distribution. We run the chain for $n=1000$ times and the trace plot for the sampled ```l```(the length scale hyperparameter) are plotted.
+The function ESS is defined according to the Elliptical Slice Sampling algorithm as given in Nishihara, Murray and Adams(2014). For simplicity, we consider the log-likelihood function $L(x)\sim N(\mu,\Sigma)$, given by the ```log.L()``` function. If $\mu$ and $\sigma$ are missing then we assume the standard multivariate normal distribution. We run the chain for $n=1000$ times and the trace plot for the sampled ```l```(the length scale hyperparameter) are plotted.
 ```{r}
 log.L = function(y, mu = NULL, sigma = NULL){
   
@@ -219,7 +221,7 @@ ggplot(data = data.frame(iteration = 51:(n+1), sampled_l = exp(f[-(1:50)])), aes
 ```
 
 ### ```mySolve```
-This function is useful when the matrix to invert is not a positive definite matrix. It generates the eigen decomposition of the matrix and then generates the inverse by suitably truncating the decomposition. In addition to the inverse, it also returns the determinant and the square root decomposition of the matrix
+Often while performing computation, there might be certain small numerical errors that might result in a matrix no longer being positive definite. This function is useful to invert the matrix in such scenario. It generates the Eigen decomposition of the matrix and then calculates the inverse by suitably truncating the decomposition. In addition to the inverse, it also returns the determinant and the square root decomposition of the matrix
 ```{r}
 ## a matrix to invert
 A = diag(2, nrow = 2)
@@ -228,6 +230,12 @@ mySolve(A)
 
 
 ### ```dmvnorm_own```
+This function calculates the density of a multivariate normal distribution with the help of ```mySolve``` function to invert the covariance matrix of the form $\tau\Sigma$.
+```{r}
+## defining the quantile vector
+x = c(0, 0)
+dmvnorm_own(y = x)
+```
 
 
 
