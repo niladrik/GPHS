@@ -10,7 +10,10 @@ mySolve(A)
 \item{A}{a symmetric matrix}
 }
 \value{
-A list containing the inverse, determinant and the square root matrix $Q$ of $A$, that is, it holds $QQ=A$
+A list containing
+\item{inv}{the inverse}
+\item{det}{the determinant}
+\item{sqrtDeco}{the square root matrix \eqn{Q} of \eqn{A}, such that it holds \eqn{QQ=A}}
 }
 \description{
 Inversion of a symmetric matrix
@@ -18,5 +21,4 @@ Inversion of a symmetric matrix
 \examples{
 A = diag(2, 2)
 mySolve(A)
-
 }

@@ -13,10 +13,10 @@ dmvnorm_own(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), tau = 0.1)
 
 \item{sigma}{covariance matrix, default is \code{diag(1, length(y))}}
 
-\item{tau}{constant multiplier (positive) for the covariance matrix, default is $0.1$}
+\item{tau}{constant multiplier (positive) for the covariance matrix, default is 0.1}
 }
 \value{
-It returns the density function for the multivariate normal distribution
+It returns the density function for the multivariate normal distribution with mean vector \eqn{\mu}, covariance matrix \eqn{\tau \times \Sigma}
 }
 \description{
 Density of multivariate normal distribution

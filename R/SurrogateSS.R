@@ -202,9 +202,9 @@ inv_and_logdet = function(Sigma){
 #' @param y vector of quantiles
 #' @param mu mean vector, default is ```rep(0, length(y))```
 #' @param sigma covariance matrix, default is ```diag(1, length(y))```
-#' @param tau constant multiplier (positive) for the covariance matrix, default is $0.1$
+#' @param tau constant multiplier (positive) for the covariance matrix, default is 0.1
 #'
-#' @return It returns the density function for the multivariate normal distribution
+#' @return It returns the density function for the multivariate normal distribution with mean vector \eqn{\mu}, covariance matrix \eqn{\tau \times \Sigma}
 #' @export
 #'
 #' @examples
@@ -223,6 +223,9 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
   if(nrow(sigma) != p){
     stop("y and sigma are not compatible")
   }
+  if(!is.numeric(tau)){
+    stop("tau needs to be a number")
+  }
   if(tau <= 0){
     stop("tau needs to be positive")
   }
@@ -236,14 +239,17 @@ dmvnorm_own <- function(y, mu = rep(0, length(y)), sigma = diag(1, length(y)), t
 #'
 #' @param A a symmetric matrix
 #'
-#' @return A list containing the inverse, determinant and the square root matrix $Q$ of $A$, that is, it holds $QQ=A$
+#' @return A list containing
+#' \item{inv}{the inverse}
+#' \item{det}{the determinant}
+#' \item{sqrtDeco}{the square root matrix \eqn{Q} of \eqn{A}, such that it holds \eqn{QQ=A}}
 #'
 #' @export
 #'
 #' @examples
 #' A = diag(2, 2)
 #' mySolve(A)
-#'
+
 mySolve <- function(A){
   # compatibility check
   if(!isSymmetric.matrix(A, tol = 1e-5)){
