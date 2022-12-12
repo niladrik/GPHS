@@ -1,6 +1,6 @@
 ---
 title: "An introduction to GPHS"
-output: html_vignette
+output: pdf_document
 header-includes:
   \usepackage{fvextra}
   \DefineVerbatimEnvironment{Highlighting}{Verbatim}{breaklines,commandchars=\\\{\}}
