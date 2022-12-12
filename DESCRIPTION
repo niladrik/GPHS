@@ -1,6 +1,6 @@
 Package: GPHS
 Title: Hyperparameter selection in Gaussian process models
-Version: 0.0.0.9000
+Version: 1.0.0
 Authors@R: 
     person("Niladri", "Kal", , "niladrik@tamu.edu", role = c("aut", "cre"))
 Description: 
